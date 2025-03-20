@@ -167,7 +167,7 @@ const ManageEvents = () => {
     };
 
     const handleCopyEventLink = (eventId) => {
-        const eventLink = `https://uspacex.vercel.app/events/${eventId}`;
+        const eventLink = `https://nt-meet-track.vercel.app/events/${eventId}`;
         navigator.clipboard.writeText(eventLink).then(() => {
             alert('Event link copied to clipboard!');
         }).catch(err => {

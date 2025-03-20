@@ -247,9 +247,7 @@ const ManageEvents = () => {
                     <button className="m-button-7" onClick={() => handleViewUsers(event.id)} style={{ marginLeft: '10px', backgroundColor: '#e2e2e2', color: 'black' }}>
                         <GrFormView/> View
                     </button>
-                    <button className="m-button-7" onClick={() => handleEditEvent(event.id)} style={{ marginLeft: '10px', backgroundColor: '#f16f06', color: 'white' }}>
-                        <CiEdit/> Edit
-                    </button>
+                    
                 </div>
             </td>
         </tr>

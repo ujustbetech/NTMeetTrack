@@ -111,7 +111,7 @@ membersSnapshot.forEach((doc) => {
   const phoneNumber = userData.phoneNumber; // ✅ Fix: Use phoneNumber
 
   if (phoneNumber) {
-    const eventLink = `https://uspacex-nyjb3xhto-soniujustbes-projects.vercel.app/events/${uniqueId}`;
+    const eventLink = `https://nt-meet-track.vercel.app/events/${uniqueId}`;
     promises.push(sendWhatsAppMessage(userData.name, eventName, eventTime, eventLink, phoneNumber));
     
   }

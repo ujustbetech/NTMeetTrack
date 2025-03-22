@@ -7,7 +7,7 @@ import "../../src/app/styles/main.scss";
 import './event.css'; // Ensure your CSS file is correctly linked
 import { IoMdClose } from "react-icons/io";
 
-const EventLoginPage = () => {  
+const EventLoginPage = () => {
   const router = useRouter();
   const { id } = router.query; // Get event name from URL
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -18,86 +18,117 @@ const EventLoginPage = () => {
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showModal, setShowModal] = useState(false); // State to show/hide modal
-  const [responseStatus, setResponseStatus] = useState(null);
-const [declineReason, setDeclineReason] = useState('');
-const [showDeclineModal, setShowDeclineModal] = useState(false);
+  const [responseStatus, setResponseStatus] = useState(true);
+  const [declineReason, setDeclineReason] = useState('');
+  const [showDeclineModal, setShowDeclineModal] = useState(true);
+  const [showResponseModal, setShowResponseModal] = useState(true);
+  const [showAcceptPopUp, setshowAcceptPopUp] = useState(false);
+  const [showDeclinePopUp, setshowDeclinePopUp] = useState(false);
 
 
- useEffect(() => {
-  const checkRegistrationStatus = async () => {
-    const storedEventId = localStorage.getItem('lastEventId');
-    console.log('Current event ID:', id);
-    console.log('Stored event ID in localStorage:', storedEventId);
-    
-    // Detect a new event and clear the previous user's phone number if the event has changed
-    if (storedEventId !== id) {
-      console.log('New event detected, clearing localStorage for userPhoneNumber');
-      localStorage.removeItem('userPhoneNumber');
-      localStorage.setItem('lastEventId', id); // Store new event ID
-      setIsLoggedIn(false);
-      setPhoneNumber(''); // Clear the phone number input field
-    }
 
-    // Retrieve user phone number if already set in localStorage
-    const userPhoneNumber = localStorage.getItem('userPhoneNumber');
-    console.log('Retrieved userPhoneNumber from localStorage:', userPhoneNumber);
-    
-    if (userPhoneNumber && id) {
-      const registeredUserRef = doc(db, 'NTmeet', id, 'registeredUsers', userPhoneNumber);
-      const userDoc = await getDoc(registeredUserRef);
-      if (userDoc.exists()) {
-        console.log('User is registered for this event:', userDoc.data());
-        setIsLoggedIn(true);
-        fetchEventDetails();
-        fetchRegisteredUserCount();
-        fetchUserName(userPhoneNumber);
-      } else {
-        console.log('User is not registered for this event. Clearing state.');
-        setIsLoggedIn(false);
-        setPhoneNumber('');
-        localStorage.removeItem('userPhoneNumber'); // Clear if not registered
+  useEffect(() => {
+    const checkRegistrationStatus = async () => {
+      const storedEventId = localStorage.getItem('lastEventId');
+      console.log('Current event ID:', id);
+      console.log('Stored event ID in localStorage:', storedEventId);
+
+      // If new event is detected, update event ID
+      if (storedEventId !== id) {
+        console.log('🚀 New event detected. Updating localStorage.');
+        localStorage.setItem('lastEventId', id);
       }
-    } else {
-      console.log('No userPhoneNumber found or event ID is missing.');
+
+      // Retrieve stored phone number
+      const storedPhoneNumber = localStorage.getItem('ntnumber');
+      console.log('Retrieved phone number from localStorage:', storedPhoneNumber);
+      if(storedPhoneNumber){
+        setshowAcceptPopUp(true);
+        setIsLoggedIn(true);
+
+      }
+      if (storedPhoneNumber && id) {
+        const registeredUserRef = doc(db, 'NTmeet', id, 'registeredUsers', storedPhoneNumber);
+        const userDoc = await getDoc(registeredUserRef);
+
+        if (userDoc.exists()) {
+          console.log('✅ User is already registered for this event:', userDoc.data().response);
+          setIsLoggedIn(true);
+          fetchEventDetails();
+          fetchRegisteredUserCount();
+          fetchUserName(storedPhoneNumber);
+          if(userDoc.data().response === "Accepted"){
+            setShowResponseModal(false);
+          }
+          else{
+            setShowResponseModal(true);
+          }
+
+        } else {
+          console.log('❌ User not registered. Registering now...');
+          await registerUserForEvent(storedPhoneNumber);
+          setIsLoggedIn(true);
+          fetchEventDetails();
+          fetchRegisteredUserCount();
+          fetchUserName(storedPhoneNumber);
+        }
+      } else {
+        console.log('❌ No phone number found or missing event ID.');
+      }
+
+      setLoading(false);
+    };
+
+    checkRegistrationStatus();
+  }, [id]); // Runs when event ID changes
+
+  // Store phone number when entered
+  // const handlePhoneNumberSubmit = (number) => {
+  //   localStorage.setItem('ntnumber', number); // Store as 'ntnumber'
+  //   setPhoneNumber(number);
+  // };
+
+  const handleAccept = async () => {
+    if (id) {
+      
+      console.log(id , phoneNumber);
+      
+      const userRef = doc(db, 'NTmeet', id, 'registeredUsers', phoneNumber);
+      await setDoc(userRef, {
+        phoneNumber,
+        response: 'Accepted',
+        responseTime: new Date(),
+      }, { merge: true });
+  
+      setResponseStatus("Accepted");
+      setShowResponseModal(false);
     }
-    setLoading(false);
   };
+  
+  const handleDecline = () => {
+    setShowDeclineModal(true);
+    setshowDeclinePopUp(true);
+    setshowAcceptPopUp(false);
+  };
+  
+  const submitDeclineReason = async () => {
+    if (id && declineReason.trim() !== '') {
+      const userRef = doc(db, 'NTmeet', id, 'registeredUsers', phoneNumber);
+      await setDoc(userRef, {
+        phoneNumber,
+        response: 'Declined',
+        reason: declineReason,
+        responseTime: new Date(),
+      }, { merge: true });
+  
+      setResponseStatus("Declined");
+      setShowDeclineModal(false);
+      setShowResponseModal(false);
+    }
+  };
+  
 
-  checkRegistrationStatus();
-}, [id]);
-
-const handleAccept = async () => {
-  if (id) {
-    const userRef = doc(db, 'NTmeet', id, 'registeredUsers', phoneNumber);
-    await setDoc(userRef, {
-      phoneNumber,
-      response: 'Accepted',
-      responseTime: new Date(),
-    }, { merge: true });
-
-    setResponseStatus('Accepted');
-  }
-};
-const handleDecline = () => {
-  setShowDeclineModal(true);
-};
-
-const submitDeclineReason = async () => {
-  if (id && declineReason.trim() !== '') {
-    const userRef = doc(db, 'NTmeet', id, 'registeredUsers', phoneNumber);
-    await setDoc(userRef, {
-      phoneNumber,
-      response: 'Declined',
-      reason: declineReason,
-      responseTime: new Date(),
-    }, { merge: true });
-
-    setResponseStatus('Declined');
-    setShowDeclineModal(false);
-  }
-};
-
-
+  
   const handleLogin = async (e) => {
     e.preventDefault();
 
@@ -107,29 +138,38 @@ const submitDeclineReason = async () => {
       });
 
       if (response.data.message[0].type === 'SUCCESS') {
-        localStorage.setItem('userPhoneNumber', phoneNumber);
+        console.log('✅ Phone number verified:', phoneNumber);
+
+        // ✅ Store the phone number as 'ntnumber' in localStorage
+        localStorage.setItem('ntnumber', phoneNumber);
+
         setIsLoggedIn(true);
 
+        // Register the user for the event using the stored number
         await registerUserForEvent(phoneNumber);
         fetchEventDetails();
         fetchRegisteredUserCount();
-        fetchUserName(phoneNumber); // Fetch user name after login
+        fetchUserName(phoneNumber);
       } else {
         setError('Phone number not registered.');
       }
     } catch (err) {
-      console.error('Error during login:', err);
+      console.error('❌ Error during login:', err);
       setError('Login failed. Please try again.');
     }
   };
 
   const fetchUserName = async (phoneNumber) => {
-    const userRef = doc(db, 'userdetails', phoneNumber);
+    const userRef = doc(db, 'NTMembers', phoneNumber);
     const userDoc = await getDoc(userRef);
-    
+
     if (userDoc.exists()) {
+      console.log("Check Details",userDoc.data().phoneNumber);
+      
       const name = userDoc.data()[" Name"]; // Access the Name field with the space
+      const mobileNumber = userDoc.data().phoneNumber; // Access the Name field with the space
       setUserName(name);
+      setPhoneNumber(mobileNumber);
     } else {
       setError('User not found.');
     }
@@ -167,14 +207,14 @@ const submitDeclineReason = async () => {
 
   const fetchRegisteredUserCount = async () => {
     if (!id) return; // Ensure 'id' is defined
-  
+
     try {
       // Correct reference to the 'registeredUsers' subcollection
       const registeredUsersRef = collection(db, `NTmeet/${id}/registeredUsers`);
-      
+
       // Fetch all documents inside 'registeredUsers'
       const userSnapshot = await getDocs(registeredUsersRef);
-      
+
       // Update state with the number of registered users
       setRegisteredUserCount(userSnapshot.size);
     } catch (error) {
@@ -240,7 +280,7 @@ const submitDeclineReason = async () => {
   }
 
   const eventTime = eventDetails?.time?.seconds
-  ? new Date(eventDetails.time.seconds * 1000).toLocaleString('en-GB', {
+    ? new Date(eventDetails.time.seconds * 1000).toLocaleString('en-GB', {
       day: '2-digit',
       month: 'short', // Abbreviated month name like "Jan"
       year: 'numeric',
@@ -248,115 +288,123 @@ const submitDeclineReason = async () => {
       minute: '2-digit',
       hour12: false // For 24-hour format
     })
-  : "Invalid time";
+    : "Invalid time";
+    const handleCancelDecline = () => {
+      setShowDeclineModal(false);  // Close Decline Modal
+      setShowResponseModal(true);  // Show Accept/Decline Modal again
+    };
+    
 
   return (
     <div className="mainContainer">
-      <div className='UserDetails'>
-        <h1 className="welcomeText">Welcome {userName || 'User'}</h1>
-        <h2 className="eventName">to {eventDetails ? eventDetails.name : 'Event not found'}</h2>
-      </div>
-      <div className="eventDetails">
-        <p>{eventTime}</p>
-        <h2>{registeredUserCount}</h2>
-        <p>Registered Orbiters</p>
-      </div>
-      <div className="response-btn">
-  <button 
-    className="accept-btn" 
-    onClick={() => {
-      handleAccept();
-      setResponseStatus('Accepted');
-    }} 
-    disabled={responseStatus === 'Accepted'}
-  >
-    ✅ Accept
-  </button>
-  
-  <button 
-    className="decline-btn" 
-    onClick={() => setShowDeclineModal(true)} 
-    disabled={responseStatus === 'Declined'}
-  >
-    ❌ Decline
-  </button>
-</div>
 
-{/* Display status */}
-{responseStatus && <p>Status: {responseStatus}</p>}
+      <div className={(showResponseModal ? 'modal-overlay' : 'modal-overlay hide')}>
+        {/* Accept/Decline Modal */}
 
-{/* Decline Reason Modal */}
-{showDeclineModal && (
-  <div className="modal-overlay">
-    <div className="modal-content">
-      <button className="close-modal" onClick={() => setShowDeclineModal(false)}>×</button>
-      <h2>Reason for Decline?</h2>
-      <div className="leave-container">
-        <div className="form-group">
-          <textarea
-            value={declineReason}
-            onChange={(e) => setDeclineReason(e.target.value)}
-            placeholder="Enter reason..."
-          />
-          <div className="twobtn">
-            <button 
-              className='m-button-7' 
-              onClick={() => {
-                submitDeclineReason();
-                setResponseStatus('Declined');
-                setShowDeclineModal(false);
-              }} 
-              style={{ marginLeft: '10px', backgroundColor: '#f16f06', color: 'white' }}
-            >
-              Submit
-            </button>
-            <button 
-              className='m-button-7' 
-              onClick={() => setShowDeclineModal(false)} 
-              style={{ marginLeft: '10px', backgroundColor: '#e2e2e2', color: 'black' }}
-            >
-              Cancel
-            </button>
+        {/* Accept */}
+        {showResponseModal && (
+
+          <div className= {(showAcceptPopUp ? 'modal-content' : 'modal-content hide')} >
+            <h2>Do you accept this event?</h2>
+            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p>
+            <ul className='actionBtns'>
+              <li>
+                <button className="m-button" onClick={handleAccept}>
+                  Accept
+                </button>
+              </li>
+              <li>
+                <button className="m-button-2" onClick={handleDecline}>
+                  Decline
+                </button>
+              </li>
+            </ul>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
-{/* <button 
-        className="suggestion-btn" 
-        onClick={() => router.push('/suggestion')}
-        style={{ marginTop: '10px', padding: '8px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}
-      >
-        ➡️ Go to Suggestion Page
-      </button> */}
+        )}
 
-      <div className="zoomLinkContainer">
-        <a href={eventDetails?.zoomLink} target="_blank" rel="noopener noreferrer" className="zoomLink">
-          <img src="/zoom-icon.png" alt="Zoom Link" width={30} />
-          <span>Join Zoom Meet</span>
-        </a>
-      </div>
-      <div className="agenda">
-        <button className="agendabutton" onClick={handleOpenModal}>View Agenda</button>
-      </div>
+        {/* Decline Reason Modal */}
+        {showDeclineModal && (
 
-      {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <button className="close-modal" onClick={handleCloseModal}>×</button>
-            <h2>Agenda</h2>
-            {eventDetails?.agenda && eventDetails.agenda.length > 0 ? (
-              <div dangerouslySetInnerHTML={{ __html: eventDetails.agenda }} />
-            ) : (
-              <p>No agenda available.</p>
-            )}
+          <div className={(showDeclinePopUp ? 'modal-content' : 'modal-content hide')}>
+            <div className='contentBox'>
+              <h2>Reason for Declining</h2>
+              <textarea
+                value={declineReason}
+                onChange={(e) => setDeclineReason(e.target.value)}
+                placeholder="Enter reason..."
+              />
+              <ul className='actionBtns'>
+                <li>
+                  <button onClick={submitDeclineReason} className='m-button'>Submit</button>
+                </li>
+                <li>
+                  <button onClick={handleCancelDecline}className='m-button-2'>Cancel</button>
+                </li>
+              </ul>
+            </div>
           </div>
+          
+
+        )}
+      </div>
+      {/* Show event details only if a response is given */}
+      {responseStatus && (
+
+        <div className="mainContainer">
+          <div className='UserDetails'>
+            <h1 className="welcomeText">Welcome {userName || 'User'}</h1>
+            <h2 className="eventName">to {eventDetails ? eventDetails.name : 'Event not found'}</h2>
+          </div>
+          <div className="eventDetails">
+            <p>{eventTime}</p>
+            <h2>{registeredUserCount}</h2>
+            <p>Registered Orbiters</p>
+          </div>
+
+
+
+
+          <button
+            className="suggestion-btn"
+            onClick={() => router.push('/suggestion')}
+            style={{ marginTop: '10px', padding: '8px 12px', backgroundColor: '#007bff', color: 'white', border: 'none', cursor: 'pointer' }}
+          >
+            ➡️ Go to Suggestion Page
+          </button>
+
+          {/* Zoom Link */}
+          <div className="zoomLinkContainer">
+            <a href={eventDetails?.zoomLink} target="_blank" rel="noopener noreferrer" className="zoomLink">
+              <img src="/zoom-icon.png" alt="Zoom Link" width={30} />
+              <span>Join Zoom Meet</span>
+            </a>
+          </div>
+
+          {/* Agenda Button */}
+          <div className="agenda">
+            <button className="agendabutton" onClick={handleOpenModal}>View Agenda</button>
+          </div>
+
+          {/* Agenda Modal */}
+          {showModal && (
+            <div className="modal-overlay">
+              <div className="modal-content">
+                <button className="close-modal" onClick={handleCloseModal}>×</button>
+                <h2>Agenda</h2>
+                {eventDetails?.agenda && eventDetails.agenda.length > 0 ? (
+                  <div dangerouslySetInnerHTML={{ __html: eventDetails.agenda }} />
+                ) : (
+                  <p>No agenda available.</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
+
     </div>
   );
+
 };
 
 export default EventLoginPage;

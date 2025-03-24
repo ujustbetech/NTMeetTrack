@@ -696,6 +696,9 @@ $italianfont:'Italianno', ;
   margin-left: 70px;
   margin-top: 70px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  row-gap: 30px; 
   &.expand {
     width: calc(100% - 300px);
     margin-left: 300px;

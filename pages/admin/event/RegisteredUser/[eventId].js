@@ -32,7 +32,8 @@ const RegisteredUsers = () => {
   const router = useRouter();
   const { id, eventId } = router.query; 
   const [eventDetails, setEventDetails] = useState(null);
-
+  const [headerMessage, setHeaderMessage] = useState('');
+  const [footerMessage, setFooterMessage] = useState('');
   const [registeredUsers, setRegisteredUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]); 
   const [searchTerm, setSearchTerm] = useState(''); 
@@ -55,7 +56,7 @@ const RegisteredUsers = () => {
       const [agendaPoints, setAgendaPoints] = useState(['']);
       const [zoomLink, setZoomLink] = useState('');
       const [loading, setLoading] = useState(false);
- 
+      const [recordingLink, setRecordingLink] = useState('');
       const [success, setSuccess] = useState('');
       const [feedbackList, setFeedbackList] = useState([]);
    
@@ -154,7 +155,7 @@ const RegisteredUsers = () => {
       // Handle event update
       const handleUpdateEvent = async (e) => {
           e.preventDefault();
-          if (!eventName || !eventTime || !zoomLink || agendaPoints.some(point => point.trim() === '')) {
+          if (!eventName || !eventTime || !zoomLink || !recordingLink || !headerMessage || !footerMessage || agendaPoints.some(point => point.trim() === '')) {
               setError('Please fill in all fields.');
               return;
           }
@@ -166,6 +167,9 @@ const RegisteredUsers = () => {
                   time: Timestamp.fromDate(new Date(eventTime)),
                   agenda: agendaPoints,
                   zoomLink: zoomLink,
+                  recordingLink: recordingLink,
+                  headerMessage:headerMessage,
+        footerMessage:footerMessage,
               });
   
               setSuccess('Event updated successfully!');
@@ -179,12 +183,12 @@ const RegisteredUsers = () => {
 
   
   const predefinedFeedbacks = [
-    "Available",
-    "Not Available",
-    "Not Connected Yet",
-    "Called but no response",
-    "Tentative",
-    "Other response",
+    "Acknowledged",
+    "Accepted",
+    "Declined",
+    "UJustBe Queue",
+    "NT Queue",
+    "Approved",
   ];
 
   useEffect(() => {
@@ -360,6 +364,12 @@ const RegisteredUsers = () => {
           setAgendaPoints(eventSnap.data().agenda)
           setZoomLink(eventSnap.data().
           zoomLink)
+          setRecordingLink(eventSnap.data().
+          recordingLink)
+          setHeaderMessage(eventSnap.data().
+          headerMessage)
+          setFooterMessage(eventSnap.data().
+          footerMessage)
         } else {
           console.log("No event found!");
         }
@@ -440,6 +450,39 @@ const RegisteredUsers = () => {
                                         type="text"
                                         value={zoomLink}
                                         onChange={(e) => setZoomLink(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </li>
+                            <li className='form-row'>
+                                <h4>RecordingLink</h4>
+                                <div className='multipleitem'>
+                                    <input
+                                        type="text"
+                                        value={recordingLink}
+                                        onChange={(e) => setRecordingLink(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </li>
+                            <li className='form-row'>
+                                <h4>Header Message</h4>
+                                <div className='multipleitem'>
+                                    <input
+                                        type="text"
+                                        value={headerMessage}
+                                        onChange={(e) => setHeaderMessage(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </li>
+                            <li className='form-row'>
+                                <h4>Footer Message</h4>
+                                <div className='multipleitem'>
+                                    <input
+                                        type="text"
+                                        value={footerMessage}
+                                        onChange={(e) => setFooterMessage(e.target.value)}
                                         required
                                     />
                                 </div>
@@ -699,3 +742,5 @@ const RegisteredUsers = () => {
 };
 
 export default RegisteredUsers;
+
+  

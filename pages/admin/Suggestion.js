@@ -122,17 +122,21 @@ const FeedbackList = () => {
                     <td>{feedback.suggestion}</td>
                     <td>{feedback.date}</td>
                     <td>
-                      {feedback.status === "Discussed" ? (
-                        <span className="status-discussed">Discussed</span>
-                      ) : (
-                        <button
-                          className="status-button"
-                          onClick={() => updateStatus(feedback.id, feedback.eventId, feedback.userDocId)}
-                        >
-                          Mark as Discussed
-                        </button>
-                      )}
-                    </td>
+  <select
+    className="status-dropdown"
+    value={feedback.status}
+    onChange={(e) => updateStatus(feedback.id, feedback.eventId, feedback.userDocId, e.target.value)}
+  >
+    <option value="Acknowledged">Acknowledged</option>
+    <option value="Accepted">Accepted</option>
+    <option value="Declined">Declined</option>
+    <option value="UJustBe Queue">UJustBe Queue</option>
+    <option value="NT Queue">NT Queue</option>
+    <option value="Approved">Approved</option>
+  </select>
+</td>
+
+
                   </tr>
                 ))}
               </tbody>

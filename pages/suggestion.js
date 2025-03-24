@@ -21,6 +21,16 @@ const FeedbackList = () => {
  
   const filterTab = ["All", "Not Available", "Available"];
 
+  const handleDetails = (index) => {
+    // console.log("sigle event ", index);
+    setshowpopup(true)
+    setsingleFeedback(index);
+  };
+
+  const handleclose = () => {
+    setshowpopup(false);
+  };
+
   const handleClick = (index, filter) => {
     setActiveIndex(index);
     setSelectedFilter(filter);
@@ -171,7 +181,7 @@ const FeedbackList = () => {
       <main className="pageContainer">
         <header className='Main m-Header'>
           <section className='container'>
-            <div className='innerLogo'>
+            <div className='innerLogo' onClick={() => router.push('/')}>
               <img src="/ujustlogo.png" alt="Logo" className="logo" />
             </div>
             <div>
@@ -216,7 +226,7 @@ const FeedbackList = () => {
                       <p>{feedback.suggestion}</p>
                     </div>
                   </div>
-                  <div className="viewPlus" onClick={() => setshowpopup(true)}> View Details + </div>
+                  <div className="viewPlus" onClick={() => handleDetails(feedback)}> View Details + </div>
                 </div>
               ))}
             </div>
@@ -227,32 +237,43 @@ const FeedbackList = () => {
         Go to Home
       </button>
 
-      {showpopup && (
-        <section className="PopupMain">
+      {
+        showpopup ? <section className="PopupMain">
           <div className="popupBox">
-            <div>
-              <span className='meetingLable'>{filteredFeedback[activeIndex]?.status}</span>
-            </div>
-            <div>
-              <h4>Event Name</h4>
-              <p>{filteredFeedback[activeIndex]?.eventName}</p>
-            </div>
-            <div>
-              <h4>Event Date</h4>
-              <p>{filteredFeedback[activeIndex]?.date}</p>
-            </div>
-            <div>
-              <h4>User Name</h4>
-              <p>{filteredFeedback[activeIndex]?.userName}</p>
-            </div>
-            <div>
-              <h4>Feedback</h4>
-              <p>{filteredFeedback[activeIndex]?.suggestion}</p>
-            </div>
-            <button className="closeBtn" onClick={() => setshowpopup(false)}>X</button>
+            {/* <h2>Suggestion</h2> */}
+            {
+              <>
+                <div>
+                  <span className='meetingLable'>{singleFeedback.status}</span>
+                </div>
+                <div>
+                  <h4>Event name</h4>
+                  <p>{singleFeedback.eventName}</p>
+                </div>
+                <div>
+                  <h4>Event Date</h4>
+                  {singleFeedback.date}
+                </div>
+                <div>
+                  <h4>User Name</h4>
+                  {singleFeedback.userName}
+                </div>
+                <div>
+                  <h4>Event ID</h4>
+                  {singleFeedback.eventId}
+                </div>
+                <div>
+                  <h4>Event Feedback</h4>
+                  {singleFeedback.suggestion}
+                </div>
+              </>
+            }
+            <button className="closeBtn" onClick={() => handleclose()}>
+              X
+            </button>
           </div>
-        </section>
-      )}
+        </section> : null
+      }
     </>
 
   );

@@ -111,14 +111,16 @@ const HomePage = () => {
   if (!isLoggedIn) {
     return (
       <div className='mainContainer signInBox'>
-        <div className='logosContainer'>
+        {/* <div className='logosContainer'>
           <img src="/ujustlogo.png" alt="Logo" className="logo" />
-        </div>
+        </div> */}
         <div className="signin">
           <div className="loginInput">
             <div className='logoContainer'>
               <img src="/logo.png" alt="Logo" className="logos" />
+              
             </div>
+            <p>NT Areana</p>
             <form onSubmit={handleLogin}>
               <ul>
                 <li>
@@ -222,7 +224,7 @@ const HomePage = () => {
                     doc.momUrl ? <div className="momLink">
                       <a href={doc.momUrl} target="_blank" rel="noopener noreferrer">
                         {/* <img src="/zoom-icon.png" alt="Zoom Link" width={30} /> */}
-                        <span>Minutes of Meeting</span>
+                        <span>MOM</span>
                       </a>
                     </div> : <div className="meetingLink">
                       <a href={doc?.zoomLink} target="_blank" rel="noopener noreferrer">

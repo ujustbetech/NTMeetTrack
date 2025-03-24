@@ -26,6 +26,16 @@ body {
   align-items: center;
 }
 
+.signin p {
+  color: #a2cad9;
+  font-weight: 500;
+  font-size: 30px;
+  text-align: center;
+  margin-bottom: 15px;
+  font-family: "Forum", serif;
+
+}
+
 .logo {
   width: 80px;
   height: auto;
@@ -1190,6 +1200,7 @@ circle {
   color: #FFF;
   border: none;
   outline: none;
+  font-family: "Mukta", serif;
   line-height: 35px;
   font-size: 16px;
   -webkit-box-shadow: 0px 0px 15px 4px rgba(0, 0, 0, 0.26);

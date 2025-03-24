@@ -122,7 +122,7 @@ const EventLoginPage = () => {
 
       // Retrieve stored phone number
       const storedPhoneNumber = localStorage.getItem('ntnumber');
-      fetchUserName(storedPhoneNumber);
+      
       // console.log('Retrieved phone number from localStorage:', storedPhoneNumber);
       if (storedPhoneNumber) {
         setshowAcceptPopUp(true);
@@ -138,6 +138,7 @@ const EventLoginPage = () => {
           setIsLoggedIn(true);
           fetchEventDetails();
           fetchRegisteredUserCount();
+          // fetchUserName(storedPhoneNumber);
           fetchUserName(storedPhoneNumber);
           if (userDoc.data().response === "Accepted") {
             setShowResponseModal(false);
@@ -394,14 +395,16 @@ const EventLoginPage = () => {
   if (!isLoggedIn) {
     return (
       <div className='mainContainer signInBox'>
-        <div className='logosContainer'>
+        {/* <div className='logosContainer'>
           <img src="/ujustlogo.png" alt="Logo" className="logo" />
-        </div>
+        </div> */}
         <div className="signin">
           <div className="loginInput">
-            <div className='logoContainer'>
+            <div className='logoContainer' >
               <img src="/logo.png" alt="Logo" className="logos" />
+              
             </div>
+            <p>NT Areana</p>
             <form onSubmit={handleLogin}>
               <ul>
                 <li>
@@ -470,7 +473,7 @@ const EventLoginPage = () => {
 
         <header className='Main m-Header'>
           <section className='container'>
-            <div className='innerLogo'>
+            <div className='innerLogo' onClick={() => router.push('/')}>
               <img src="/ujustlogo.png" alt="Logo" className="logo" />
             </div>
             <div className='userName'> {userName || 'User'} <span>{getInitials(userName)}</span> </div>
@@ -550,7 +553,7 @@ const EventLoginPage = () => {
                   eventDetails?.momUrl ? <div className="momLink">
                     <a href={eventDetails.momUrl} target="_blank" rel="noopener noreferrer">
                       {/* <img src="/zoom-icon.png" alt="Zoom Link" width={30} /> */}
-                      <span>Minutes of Meeting</span>
+                      <span>MOM</span>
                     </a>
                   </div> : <div className="meetingLink">
                     <a href={eventDetails?.zoomLink} target="_blank" rel="noopener noreferrer">
@@ -560,9 +563,12 @@ const EventLoginPage = () => {
                   </div>
                 }
                 {/* Button to Open Modal */}
-                <button className="suggetionBtn" onClick={() => setshowpopup(true)}>
+                {
+                  eventDetails?.momUrl ? <button className="suggetionBtn" onClick={() => setshowpopup(true)}>
                   Suggestion
-                </button>
+                </button> : null
+                }
+                
 
               </div>
             </div>
@@ -598,7 +604,7 @@ const EventLoginPage = () => {
             {showResponseModal && (
               <div className={(showAcceptPopUp ? 'modal-content' : 'modal-content hide')} >
                 <h2>Do you accept this event?</h2>
-                <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p>
+                {/* <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p> */}
                 <ul className='actionBtns'>
                   <li>
                     <button className="m-button" onClick={handleAccept}>

@@ -9,6 +9,9 @@ const CreateEvent = () => {
   const [eventTime, setEventTime] = useState('');
   const [agendaPoints, setAgendaPoints] = useState(['']); // Array to handle multiple agenda points
   const [zoomLink, setZoomLink] = useState('');
+  const [recordingLink, setRecordingLink] = useState('');
+  const [headerMessage, setHeaderMessage] = useState('');
+  const [footerMessage, setFooterMessage] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false); // Add loading state
@@ -79,7 +82,7 @@ const CreateEvent = () => {
     setError('');
     setSuccess('');
   
-    if (!eventName || !eventTime || !zoomLink || agendaPoints.some(point => point === '')) {
+    if (!eventName || !eventTime || !zoomLink || !recordingLink || !headerMessage || !footerMessage || agendaPoints.some(point => point === '')) {
       setError('Please fill in all fields');
       setLoading(false);
       return;
@@ -95,6 +98,9 @@ const CreateEvent = () => {
         time: Timestamp.fromDate(new Date(eventTime)),
         agenda: agendaPoints,
         zoomLink: zoomLink,
+        recordingLink: recordingLink,
+        headerMessage:headerMessage,
+        footerMessage:footerMessage,
         uniqueId: uniqueId,
       };
   
@@ -127,6 +133,9 @@ await Promise.all(promises);
       setEventTime('');
       setAgendaPoints(['']);
       setZoomLink('');
+      setRecordingLink('');
+      setHeaderMessage('');
+      setFooterMessage('');
       setError('');
       setLoading(false);
   
@@ -211,7 +220,42 @@ await Promise.all(promises);
               />
             </div>
           </li>
-
+          <li className='form-row'>
+            <h4>Recording link</h4>
+            <div className='multipleitem'>
+              <input
+                type="text"
+                placeholder="Recording Link"
+                value={recordingLink}
+                onChange={(e) => setRecordingLink(e.target.value)}
+                required
+              />
+            </div>
+          </li>
+          <li className='form-row'>
+            <h4>Header Message</h4>
+            <div className='multipleitem'>
+              <input
+                type="text"
+                placeholder="Header Message"
+                value={headerMessage}
+                onChange={(e) => setHeaderMessage(e.target.value)}
+                required
+              />
+            </div>
+          </li>
+          <li className='form-row'>
+            <h4>Footer Message</h4>
+            <div className='multipleitem'>
+              <input
+                type="text"
+                placeholder="Footer Message"
+                value={footerMessage}
+                onChange={(e) => setFooterMessage(e.target.value)}
+                required
+              />
+            </div>
+          </li>
           <li className='form-row'>
             <div>
               <button className='submitbtn' type='submit' disabled={loading}>

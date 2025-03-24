@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebaseConfig"; // Adjust Firebase config path
-import { collection, getDocs, addDoc, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, addDoc, deleteDoc, doc, setDoc } from "firebase/firestore";
 import "../src/app/styles/main.scss";
 import { FaSearch } from "react-icons/fa";
 
@@ -67,8 +67,11 @@ const UserList = () => {
 
     // Add user to team
     const addUserToTeam = async (user) => {
+        console.log("users" , user.id);
+        
         try {
-            const docRef = await addDoc(collection(db, "NTMembers"), user);
+            const docRef = await setDoc(doc(db, "NTMembers", user.id), user)
+            // const docRef = await addDoc(collection(db, "NTMembers", user.id), user);
             const newMember = { ...user, id: docRef.id };
 
             setTeamMembers([...teamMembers, newMember]); // Update UI

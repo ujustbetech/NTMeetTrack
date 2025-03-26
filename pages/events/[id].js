@@ -7,6 +7,7 @@ import axios from 'axios';
 import './event.css'; // Ensure your CSS file is correctly linked
 import { IoMdClose } from "react-icons/io";
 import Modal from 'react-modal';
+import { createMarkup } from '../../component/util';
 
 
 
@@ -138,7 +139,7 @@ const EventLoginPage = () => {
           setIsLoggedIn(true);
           fetchEventDetails();
           fetchRegisteredUserCount();
-          // fetchUserName(storedPhoneNumber);
+          fetchUserName(storedPhoneNumber);
           
           if (userDoc.data().response === "Accepted") {
             setShowResponseModal(false);
@@ -149,7 +150,7 @@ const EventLoginPage = () => {
 
         } else {
           // console.log('❌ User not registered. Registering now...');
-          await registerUserForEvent(storedPhoneNumber);
+          // await registerUserForEvent(storedPhoneNumber);
           setIsLoggedIn(true);
           fetchEventDetails();
           // fetchRegisteredUserCount();
@@ -502,9 +503,11 @@ const EventLoginPage = () => {
               </div>
 
               <div className='meetingContent'>
+                
                 <div>
                   <h4>Agenda</h4>
-                  <p>{eventDetails ? eventDetails.agenda : null}</p>
+                  {eventDetails && <p dangerouslySetInnerHTML={createMarkup(eventDetails.agenda)}></p>}
+                  {/* <p> </p> */}
                 </div>
                 <div>
                   <h4>Atendees</h4>

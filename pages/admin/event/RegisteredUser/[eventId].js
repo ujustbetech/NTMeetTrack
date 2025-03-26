@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { db } from '../../../../firebaseConfig';
-import { collection, getDocs, doc, getDoc, updateDoc, arrayUnion,query,orderBy,onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, updateDoc, arrayUnion,query,orderBy,onSnapshot, where,Timestamp } from 'firebase/firestore';
 import { useRouter } from 'next/router'; 
 import Layout from '../../../../component/Layout';
 import "../../../../src/app/styles/main.scss";
@@ -152,33 +152,54 @@ const RegisteredUsers = () => {
       // Fetch event data when ID changes
    
   
-      // Handle event update
       const handleUpdateEvent = async (e) => {
-          e.preventDefault();
-          if (!eventName || !eventTime || !zoomLink || !recordingLink || !headerMessage || !footerMessage || agendaPoints.some(point => point.trim() === '')) {
-              setError('Please fill in all fields.');
-              return;
-          }
-  
-          try {
-              const eventDocRef = doc(db, 'NTmeet', id);
-              await updateDoc(eventDocRef, {
-                  name: eventName,
-                  time: Timestamp.fromDate(new Date(eventTime)),
-                  agenda: agendaPoints,
-                  zoomLink: zoomLink,
-                  recordingLink: recordingLink,
-                  headerMessage:headerMessage,
-        footerMessage:footerMessage,
-              });
-  
-              setSuccess('Event updated successfully!');
-              router.push('/admin/event/manageEvent'); // Redirect after update
-          } catch (error) {
-              console.error("Error updating event:", error);
-              setError('Error updating event. Please try again.');
-          }
-      };
+        e.preventDefault();
+    
+        if (!eventId) {
+            setError("Event ID is missing.");
+            console.error("Event ID is undefined or null.");
+            return;
+        }
+    
+        console.log("Updating event with ID:", eventId);
+    
+        // Check if the event exists
+        const eventDocRef = doc(db, 'NTmeet', eventId);
+        const eventSnap = await getDoc(eventDocRef);
+    
+        if (!eventSnap.exists()) {
+            setError("Event not found in Firestore.");
+            console.error("Event ID does not exist in Firestore:", eventId);
+            return;
+        }
+    
+        if (!eventName || !eventTime || !zoomLink || !recordingLink || !headerMessage || !footerMessage || agendaPoints.some(point => point.trim() === '')) {
+            setError('Please fill in all fields.');
+            return;
+        }
+    
+        try {
+            const parsedTime = new Date(eventTime);
+            console.log("Parsed event time:", parsedTime);
+    
+            await updateDoc(eventDocRef, {
+                name: eventName,
+                time: Timestamp.fromDate(parsedTime),
+                agenda: agendaPoints,
+                zoomLink,
+                recordingLink,
+                headerMessage,
+                footerMessage,
+            });
+    
+            setSuccess('Event updated successfully!');
+            router.push('/admin/event/manageEvent');
+        } catch (error) {
+            console.error("Error updating event:", error);
+            setError('Error updating event. Please try again.');
+        }
+    };
+    
   
 
   
@@ -195,25 +216,24 @@ const RegisteredUsers = () => {
     if (!eventId) return;  // Ensure eventId is available
   
     const registeredUsersRef = collection(db, `NTmeet/${eventId}/registeredUsers`);
-    const usersQuery = query(registeredUsersRef, orderBy('registeredAt', 'desc'));
   
-    const unsubscribe = onSnapshot(usersQuery, async (snapshot) => {
+    const unsubscribe = onSnapshot(registeredUsersRef, async (snapshot) => {
       if (!snapshot.empty) {
         const userDetails = snapshot.docs.map((doc) => ({
-          id: doc.id, // User's phone number as doc ID
+          id: doc.id, 
           ...doc.data(),
         }));
   
         try {
           const nameAndUJBPromises = userDetails.map(async (user) => {
-            const userDocRef = doc(db, `userdetails/${user.id}`);
+            const userDocRef = doc(db, `userdetails/${user.phoneNumber}`);
             const userDocSnap = await getDoc(userDocRef);
   
             return {
-              id: user.id,
+              id: user.phoneNumber, 
               name: userDocSnap.exists() ? userDocSnap.data()[" Name"] : 'Unknown',
               ujbcode: userDocSnap.exists() ? userDocSnap.data()["UJB Code"] : 'Unknown',
-              category: userDocSnap.exists() ? userDocSnap.data()["Category"] : 'Unknown',
+              category: userDocSnap.exists() ? userDocSnap.data().Category || 'Unknown' : 'Unknown',
               ...user,
             };
           });
@@ -233,8 +253,9 @@ const RegisteredUsers = () => {
       console.error('Error fetching registered users:', error);
     });
   
-    return () => unsubscribe();  // Cleanup listener on unmount
+    return () => unsubscribe();
   }, [eventId]);
+  
   
  useEffect(() => {
     const filtered = registeredUsers.filter((user) =>

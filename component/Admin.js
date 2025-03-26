@@ -139,7 +139,7 @@ await Promise.all(promises);
       setError('');
       setLoading(false);
   
-      return router.push(`/events/${uniqueId}`);
+   
     } catch (error) {
       console.error(error);
       setError('Error creating event. Please try again.');

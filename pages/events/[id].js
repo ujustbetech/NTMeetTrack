@@ -377,7 +377,7 @@ const EventLoginPage = () => {
 
     const timestamp = new Date().toLocaleString();
     const feedbackEntry = {
-      predefined: null || 'No predefined feedback',
+      predefined: null || 'Pending',
       custom: customFeedback || 'No custom feedback',
       timestamp: `Submitted on: ${timestamp}`
     };

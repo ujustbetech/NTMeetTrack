@@ -49,6 +49,18 @@ const Navbar = (props) => {
                                 <span className="linklabel">Suggestion List</span>
                             </Link>
                         </li>
+                        <li>
+                            <Link href="/admin/CPAdd">
+                                <span className="icons"><RiListSettingsLine /></span>
+                                <span className="linklabel">CPList</span>
+                            </Link>
+                        </li>
+                        <li>
+                            <Link href="/admin/event/upload">
+                                <span className="icons"><RiListSettingsLine /></span>
+                                <span className="linklabel">Upload Excel</span>
+                            </Link>
+                        </li>
                     </ul>
                 </nav>
             )}

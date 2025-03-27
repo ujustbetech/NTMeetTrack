@@ -82,7 +82,7 @@ const RegisteredUsers = () => {
       
                 let userName = "Unknown User";
                 if (phoneNumber) {
-                  const membersCollection = collection(db, "NTMembers");
+                  const membersCollection = collection(db, "NTMember");
                   const q = query(membersCollection, where("phoneNumber", "==", phoneNumber));
                   const membersSnapshot = await getDocs(q);
                   if (!membersSnapshot.empty) {

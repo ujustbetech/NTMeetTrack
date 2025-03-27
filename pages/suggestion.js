@@ -61,7 +61,7 @@ const FeedbackList = () => {
  
            let userName = "Unknown User";
            if (phoneNumber) {
-             const membersCollection = collection(db, "NTMembers");
+             const membersCollection = collection(db, "NTMember");
              const q = query(membersCollection, where("phoneNumber", "==", phoneNumber));
              const membersSnapshot = await getDocs(q);
              if (!membersSnapshot.empty) {
@@ -91,7 +91,7 @@ const FeedbackList = () => {
                  suggestion: feedbackEntry.custom || feedbackEntry.predefined || "N/A",
                  predefined: feedbackEntry.predefined || "N/A", // Store predefined field
                  date: formattedDate,
-                 status: feedbackEntry.status || "Yet to be Discussed",
+                 status: feedbackEntry.predefined || "Yet to be Discussed",
                });
              });
            }
@@ -148,8 +148,8 @@ const FeedbackList = () => {
 
 
   const fetchUserName = async (phoneNumber) => {
-    console.log("Fetch User from NTMembers", phoneNumber);
-    const userRef = doc(db, 'NTMembers', phoneNumber);
+    console.log("Fetch User from NTMember", phoneNumber);
+    const userRef = doc(db, 'NTMember', phoneNumber);
     const userDoc = await getDoc(userRef);
 
     console.log("Check Details", userDoc.data());
@@ -221,7 +221,10 @@ const FeedbackList = () => {
               {filteredFeedback.map((feedback, index) => (
                 <div key={index} className='suggestionBox'>
                   <div className="suggestionDetails">
-                    <span className='meetingLable'>{feedback.status}</span>
+                    {
+                      feedback.predefined === "Declined" ? <span className='meetingLable3'>{feedback.predefined} </span> : <span className='meetingLable'>{feedback.predefined}</span>
+                    }
+                    
                     <span className='suggestionTime'>{feedback.date}</span>
                   </div>
                   <div className="boxHeading">

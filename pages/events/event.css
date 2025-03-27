@@ -1051,10 +1051,17 @@ circle {
   color: #4a5a32;
   border-radius: 20px;
   background-color: #ddebc9;
+  font-family: "Mukta", serif;
   line-height: 10px;
   padding-top: 6px;
+  font-weight: 500;
 }
-
+.statusbtn{
+  display: flex
+  ;
+      flex-direction: row;
+      gap: 140px;
+}
 .meetingLable2 {
   padding: 3px 8px;
   font-size: 9px;
@@ -1063,8 +1070,23 @@ circle {
   color: #1c6174;
   border-radius: 20px;
   background-color: #c2effc;
+  font-family: "Mukta", serif;
   line-height: 10px;
   padding-top: 6px;
+  font-weight: 500;
+}
+.meetingLable3 {
+  padding: 3px 8px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #c04c41;
+  font-family: "Mukta", serif;
+  border-radius: 20px;
+  background-color: #feeded;
+  line-height: 10px;
+  padding-top: 6px;
+  font-weight: 500;
 }
 
 

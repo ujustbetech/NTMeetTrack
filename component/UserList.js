@@ -15,7 +15,7 @@ const UserList = () => {
     useEffect(() => {
         const fetchTeamMembers = async () => {
             try {
-                const teamCollection = collection(db, "NTMembers");
+                const teamCollection = collection(db, "NTMember");
                 const teamSnapshot = await getDocs(teamCollection);
                 const teamList = teamSnapshot.docs.map((doc) => ({
                     id: doc.id,
@@ -70,7 +70,7 @@ const UserList = () => {
         console.log("users" , user.id);
         
         try {
-            const docRef = await setDoc(doc(db, "NTMembers", user.id), user)
+            const docRef = await setDoc(doc(db, "NTMember", user.id), user)
             // const docRef = await addDoc(collection(db, "NTMembers", user.id), user);
             const newMember = { ...user, id: docRef.id };
 
@@ -84,7 +84,7 @@ const UserList = () => {
     // Remove user from team
     const removeUserFromTeam = async (userId) => {
         try {
-            await deleteDoc(doc(db, "NTMembers", userId));
+            await deleteDoc(doc(db, "NTMember", userId));
             setTeamMembers(teamMembers.filter((user) => user.id !== userId)); // Update UI
         } catch (err) {
             console.error("Error deleting user:", err);

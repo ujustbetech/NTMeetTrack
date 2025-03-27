@@ -19,7 +19,6 @@ const EventLoginPage = () => {
   const [error, setError] = useState(null);
   const [eventDetails, setEventDetails] = useState(null);
   const [registerUsersList, setregisterUsersList] = useState(null);
-
   const [registeredUserCount, setRegisteredUserCount] = useState(0);
   const [feedbackList, setFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +35,7 @@ const EventLoginPage = () => {
   const [customFeedback, setCustomFeedback] = useState("");
   const [currentUserId, setCurrentUserId] = useState('');
   const [showpopup, setshowpopup] = useState(false);
+  const [currentMeetingstatus, setcurrentMeetingstatus] = useState(null);
 
 
 
@@ -60,12 +60,13 @@ const EventLoginPage = () => {
 
           let userName = "Unknown User";
           if (phoneNumber) {
-            const membersCollection = collection(db, "NTMembers");
+            const membersCollection = collection(db, "NTMember");
             const q = query(membersCollection, where("phoneNumber", "==", phoneNumber));
             const membersSnapshot = await getDocs(q);
             if (!membersSnapshot.empty) {
               const memberData = membersSnapshot.docs[0].data();
               userName = memberData.name || "Unknown User";
+
             }
           }
 
@@ -123,7 +124,7 @@ const EventLoginPage = () => {
 
       // Retrieve stored phone number
       const storedPhoneNumber = localStorage.getItem('ntnumber');
-      
+
       // console.log('Retrieved phone number from localStorage:', storedPhoneNumber);
       if (storedPhoneNumber) {
         setshowAcceptPopUp(true);
@@ -140,14 +141,18 @@ const EventLoginPage = () => {
           fetchEventDetails();
           fetchRegisteredUserCount();
           fetchUserName(storedPhoneNumber);
-          
-          if (userDoc.data().response === "Accepted") {
+
+          if (userDoc.data().response === "Accepted" || userDoc.data().response === "Declined") {
             setShowResponseModal(false);
           }
+
           else {
             setShowResponseModal(true);
           }
 
+          if (userDoc.data().response === "Declined") {
+            setcurrentMeetingstatus(true);
+          }
         } else {
           // console.log('❌ User not registered. Registering now...');
           // await registerUserForEvent(storedPhoneNumber);
@@ -249,7 +254,7 @@ const EventLoginPage = () => {
 
   const fetchUserName = async (phoneNumber) => {
     console.log("Fetch User from NTMembers", phoneNumber);
-    const userRef = doc(db, 'NTMembers', phoneNumber);
+    const userRef = doc(db, 'NTMember', phoneNumber);
     const userDoc = await getDoc(userRef);
 
     console.log("Check Details", userDoc.data());
@@ -404,7 +409,7 @@ const EventLoginPage = () => {
           <div className="loginInput">
             <div className='logoContainer' >
               <img src="/logo.png" alt="Logo" className="logos" />
-              
+
             </div>
             <p>NT Areana</p>
             <form onSubmit={handleLogin}>
@@ -493,35 +498,49 @@ const EventLoginPage = () => {
             <div className='meetingDetailsBox'>
 
               <div className='meetingDetailsheading'>
-                <span className='meetingLable'>Current Meeting</span>
+                <div className='statusbtn'>
+                { eventDetails?.momUrl ? <span className='meetingLable2'>Meeting Done</span> : <span className='meetingLable'>Current Meeting</span>}
+                  
+                  {currentMeetingstatus ? <span className='meetingLable3'>Declined</span> : null}
+                </div>
+
+
                 <h3>{eventDetails ? eventDetails.name : 'Event not found'}</h3>
                 <p>
                   {/* {eventDetails.uniqueId} */}
                   {eventDetails ? eventDetails.uniqueId : null}
+
                 </p>
                 {/* <p>View Agenda</p> */}
+
               </div>
 
               <div className='meetingContent'>
-                
+
                 <div>
                   <h4>Agenda</h4>
                   {eventDetails && <p dangerouslySetInnerHTML={createMarkup(eventDetails.agenda)}></p>}
                   {/* <p> </p> */}
                 </div>
                 <div>
-                  <h4>Atendees</h4>
+                  <h4>Attendees</h4>
                   <ul>
-                    {registerUsersList ? registerUsersList?.map(doc => (
-                      <li key={doc.id}>
-                        <span>{getInitials(doc.name)}</span>
-                        <p>{doc.name} </p>
-                      </li>
-                    )) : "loading"
-
-                    }
-
+                    {registerUsersList ? (
+                      registerUsersList
+                        .filter(doc => doc.response !== "Declined") // Exclude users who declined
+                        .map(doc => (
+                          <li key={doc.id}>
+                            <span>{getInitials(doc.name)}</span>
+                            <p>{doc.name}</p>
+                          </li>
+                        ))
+                    ) : (
+                      "loading"
+                    )}
                   </ul>
+
+
+
                 </div>
                 {eventDetails?.momUrl ? (
                   <div className='suggestionList'>
@@ -559,20 +578,22 @@ const EventLoginPage = () => {
                       {/* <img src="/zoom-icon.png" alt="Zoom Link" width={30} /> */}
                       <span>MOM</span>
                     </a>
-                  </div> : <div className="meetingLink">
-                    <a href={eventDetails?.zoomLink} target="_blank" rel="noopener noreferrer">
-                      {/* <img src="/zoom-icon.png" alt="Zoom Link" width={30} /> */}
-                      <span>Join meeting</span>
-                    </a>
-                  </div>
+                  </div> : <>{!currentMeetingstatus ?
+                    <div className="meetingLink">
+                      <a href={eventDetails?.zoomLink} target="_blank" rel="noopener noreferrer">
+                        {/* <img src="/zoom-icon.png" alt="Zoom Link" width={30} /> */}
+                        <span>Join meeting</span>
+                      </a>
+                    </div> : null}
+                  </>
                 }
                 {/* Button to Open Modal */}
                 {
                   eventDetails?.momUrl ? <button className="suggetionBtn" onClick={() => setshowpopup(true)}>
-                  Suggestion
-                </button> : null
+                    Suggestion
+                  </button> : null
                 }
-                
+
 
               </div>
             </div>
@@ -606,7 +627,7 @@ const EventLoginPage = () => {
 
             {/* Accept */}
             {showResponseModal && (
-              <div className={(showAcceptPopUp ? 'modal-content' : 'modal-content hide')} >
+              <div className={(showAcceptPopUp ? 'modal-content' : 'modadl-content hide')} >
                 <h2>Do you accept this event?</h2>
                 {/* <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p> */}
                 <ul className='actionBtns'>

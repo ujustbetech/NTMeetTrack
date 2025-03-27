@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
 import "../../src/app/styles/main.scss";
 import Layout from '../../component/Layout';
-import { collection, getDocs, query, where, doc, updateDoc } from "firebase/firestore";
+import { collection, getDocs,getDoc, query, where, doc, updateDoc } from "firebase/firestore";
 
 const FeedbackList = () => {
   const [feedbackList, setFeedbackList] = useState([]);
@@ -29,7 +29,7 @@ const FeedbackList = () => {
 
           let userName = "Unknown User";
           if (phoneNumber) {
-            const membersCollection = collection(db, "NTMembers");
+            const membersCollection = collection(db, "NTMember");
             const q = query(membersCollection, where("phoneNumber", "==", phoneNumber));
             const membersSnapshot = await getDocs(q);
             if (!membersSnapshot.empty) {
@@ -73,24 +73,36 @@ const FeedbackList = () => {
     }
   };
 
-  const updateStatus = async (feedbackId, eventId, userDocId) => {
+  const updatePredefined = async (feedbackId, eventId, userDocId, newPredefined) => {
     try {
       const userRef = doc(db, `NTmeet/${eventId}/registeredUsers`, userDocId);
-      const userSnapshot = await getDocs(collection(userRef, "feedback"));
-      
-      userSnapshot.docs.forEach(async (feedbackDoc) => {
-        await updateDoc(feedbackDoc.ref, { status: "Discussed" });
-      });
-
-      setFeedbackList((prevList) =>
-        prevList.map((feedback) =>
-          feedback.id === feedbackId ? { ...feedback, status: "Discussed" } : feedback
-        )
-      );
+      const userSnapshot = await getDoc(userRef);
+  
+      if (userSnapshot.exists()) {
+        const userData = userSnapshot.data();
+        
+        // Update only the `predefined` field in the specific feedback entry
+        const updatedFeedback = userData.feedback.map((feedback, index) =>
+          `${userDocId}-${index}` === feedbackId 
+            ? { ...feedback, predefined: newPredefined } 
+            : feedback
+        );
+  
+        // Update Firestore
+        await updateDoc(userRef, { feedback: updatedFeedback });
+  
+        // Update state to reflect changes in UI
+        setFeedbackList((prevList) =>
+          prevList.map((feedback) =>
+            feedback.id === feedbackId ? { ...feedback, predefined: newPredefined } : feedback
+          )
+        );
+      }
     } catch (error) {
-      console.error("Error updating status:", error);
+      console.error("Error updating predefined field:", error);
     }
   };
+  
 
   useEffect(() => {
     fetchFeedback();
@@ -122,18 +134,19 @@ const FeedbackList = () => {
                     <td>{feedback.suggestion}</td>
                     <td>{feedback.date}</td>
                     <td>
-  <select
-    className="status-dropdown"
-    value={feedback.status}
-    onChange={(e) => updateStatus(feedback.id, feedback.eventId, feedback.userDocId, e.target.value)}
-  >
-    <option value="Acknowledged">Acknowledged</option>
-    <option value="Accepted">Accepted</option>
-    <option value="Declined">Declined</option>
-    <option value="UJustBe Queue">UJustBe Queue</option>
-    <option value="NT Queue">NT Queue</option>
-    <option value="Approved">Approved</option>
-  </select>
+                    <select
+  className="predefined-dropdown"
+  value={feedback.predefined}
+  onChange={(e) => updatePredefined(feedback.id, feedback.eventId, feedback.userDocId, e.target.value)}
+>
+  <option value="Acknowledged">Acknowledged</option>
+  <option value="Accepted">Accepted</option>
+  <option value="Declined">Declined</option>
+  <option value="UJustBe Queue">UJustBe Queue</option>
+  <option value="NT Queue">NT Queue</option>
+  <option value="Approved">Approved</option>
+</select>
+
 </td>
 
 

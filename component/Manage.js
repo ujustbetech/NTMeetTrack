@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from '../firebaseConfig';
-import { collection, getDocs, deleteDoc, doc } from 'firebase/firestore';
+import { collection, getDocs, deleteDoc, doc ,getDoc} from 'firebase/firestore';
 import { format } from 'date-fns';
 import { FaRegCopy } from "react-icons/fa6";
 import { useRouter } from 'next/router';
@@ -19,7 +19,6 @@ const ManageEvents = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState({});
-
 
 
     const handleFileUpload = async (eventId, eventName, eventTime) => {
@@ -41,8 +40,21 @@ const ManageEvents = () => {
                 async () => {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
     
-                    // ✅ Update Firestore with MoM URL
+                    // ✅ Fetch event details from Firestore
                     const eventRef = doc(db, "NTmeet", eventId);
+                    const eventSnap = await getDoc(eventRef);
+                    
+                    if (!eventSnap.exists()) {
+                        console.error("Event not found in Firestore!");
+                        return;
+                    }
+                    
+                    const eventData = eventSnap.data();
+                    const headerMessage = eventData.headerMessage || "Meeting Summary";
+                    const footerMessage = eventData.footerMessage || "Regards, Team UJustBe";
+                    const recordingLink = eventData.recordingLink || "No recording link provided";
+    
+                    // ✅ Update Firestore with MoM URL
                     await updateDoc(eventRef, { momUrl: downloadURL });
     
                     // ✅ Update local state
@@ -55,18 +67,19 @@ const ManageEvents = () => {
                     alert("File uploaded successfully!");
     
                     // ✅ Send MoM link to attendees
-                    await sendMomMessage(eventId, eventName, eventTime, downloadURL);
+                    await sendMomMessage(eventId, eventName, eventTime, downloadURL, recordingLink, headerMessage, footerMessage);
                 }
             );
         } catch (error) {
             console.error("Error uploading file:", error);
         }
     };
-    const sendMomMessage = async (eventId, eventName, eventTime, momUrl) => {
+    
+    const sendMomMessage = async (eventId, eventName, eventTime, momUrl, recordingLink, headerMessage, footerMessage) => {
         try {
             console.log("Fetching all NTMembers...");
     
-            const membersRef = collection(db, "NTMembers");
+            const membersRef = collection(db, "NTMember");
             const membersSnapshot = await getDocs(membersRef);
             const members = membersSnapshot.docs.map(doc => doc.data());
     
@@ -96,16 +109,17 @@ const ManageEvents = () => {
                         to: phone,
                         type: "template",
                         template: {
-                            name: "mom_link",
+                            name: "dynamic_mom",  // Updated template name
                             language: { code: "en" },
                             components: [
                                 {
                                     type: "body",
                                     parameters: [
-                                        { type: "text", text: name },  // ✅ Use member's actual name
-                                        { type: "text", text: eventName },
-                                        { type: "text", text: new Date(eventTime.seconds * 1000).toLocaleDateString() },
-                                        { type: "text", text: momUrl }
+                                        { type: "text", text: name },  // Member's name
+                                        { type: "text", text: headerMessage },
+                                        { type: "text", text: momUrl }, // MOM Link
+                                        { type: "text", text: recordingLink }, // Recording Link
+                                        { type: "text", text: footerMessage } // Footer Message
                                     ]
                                 }
                             ]
@@ -125,8 +139,6 @@ const ManageEvents = () => {
         }
     };
     
-    
-        
 
     // Fetch all events from the 'NTmeet' collection
     useEffect(() => {

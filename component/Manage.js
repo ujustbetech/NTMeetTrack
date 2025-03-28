@@ -254,14 +254,24 @@ const ManageEvents = () => {
 </>
                 )}
             </td>
-            <td style={{ padding: '10px', border: '1px solid #ddd' }}>
-                <div className="twobtn">
-                    <button className="m-button-7" onClick={() => handleViewUsers(event.id)} style={{ marginLeft: '10px', backgroundColor: '#e2e2e2', color: 'black' }}>
-                        <GrFormView/> View
-                    </button>
-                    
-                </div>
-            </td>
+          
+                    <td style={{ padding: '10px', border: '1px solid #ddd' }}>
+    <div className="twobtn">
+        <button className="m-button-7" 
+            onClick={() => handleViewUsers(event.id)} 
+            style={{ marginLeft: '10px', backgroundColor: '#e2e2e2', color: 'black' }}>
+            <GrFormView/> View
+        </button>
+        
+        <button className="m-button-7" 
+            onClick={() => handleDeleteEvent(event.id)} 
+            style={{ marginLeft: '10px', backgroundColor: '#fe6f06', color: 'white' }}>
+            🗑 Delete
+        </button>
+    </div>
+</td>
+
+                
         </tr>
     ))}
 </tbody>

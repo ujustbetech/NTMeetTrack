@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from 'next/router';
 import { db } from "../firebaseConfig";
-
+import { format } from "date-fns";
 import '/pages/events/event.css'; // Ensure your CSS file is correctly linked
 import Layout from '../component/Layout';
 import { collection, getDocs, query, where, doc, updateDoc, getDoc } from "firebase/firestore";
@@ -51,6 +51,7 @@ const FeedbackList = () => {
          const eventData = eventDoc.data();
          const eventId = eventDoc.id;
          const eventName = eventData.name || "Unknown Event";
+         const eventTime = eventData.time || "Unknown Event";
  
          const usersCollection = collection(db, `NTmeet/${eventId}/registeredUsers`);
          const usersSnapshot = await getDocs(usersCollection);
@@ -87,6 +88,7 @@ const FeedbackList = () => {
                  eventId,
                  userDocId: userDoc.id,
                  eventName,
+                 eventTime,
                  userName,
                  suggestion: feedbackEntry.custom || feedbackEntry.predefined || "N/A",
                  predefined: feedbackEntry.predefined || "N/A", // Store predefined field
@@ -176,9 +178,21 @@ const FeedbackList = () => {
     // setPhoneNumber(storedPhoneNumber)
     fetchFeedback();
   }, []);
-
-
-
+  
+  const formatDate = (timestamp) => {
+    if (!timestamp || !timestamp.seconds) return "N/A";
+    return new Date(timestamp.seconds * 1000).toLocaleString("en-US", {
+      timeZone: "Asia/Kolkata", // Adjust for your timezone
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+      hour12: true,
+    });
+  };
+  
 
   return (
 
@@ -256,11 +270,12 @@ const FeedbackList = () => {
                 </div>
                 <div>
                   <h4>Event name</h4>
-                  <p>{singleFeedback.eventName}</p>
+                  {singleFeedback.eventName}
+
                 </div>
                 <div>
                   <h4>Event Date</h4>
-                  {singleFeedback.date}
+                  <p>{formatDate(singleFeedback.eventTime)}</p>
                 </div>
                 <div>
                   <h4>User Name</h4>

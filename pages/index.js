@@ -58,6 +58,24 @@ const HomePage = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    const getNTEventList = async () => {
+      try {
+        const eventCollection = collection(db, "NTmeet");
+        const eventSnapshot = await getDocs(eventCollection);
+        const eventList = eventSnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+
+        // Sort events by latest date (descending order)
+        eventList.sort((a, b) => b.time.seconds - a.time.seconds);
+
+        setEventList(eventList);
+        console.log("Sorted events", eventList);
+      } catch (err) {
+        console.error("Error fetching team members:", err);
+      }
+    };
 
     try {
       const response = await axios.post('https://api.ujustbe.com/mobile-check', {
@@ -72,6 +90,8 @@ const HomePage = () => {
 
         setIsLoggedIn(true);
         fetchUserName(phoneNumber);
+        getNTEventList();
+        setLoading(false);
       } else {
         setError('Phone number not registered.');
       }
@@ -103,7 +123,12 @@ const HomePage = () => {
     }
   };
 
-
+    // useEffect(() => {
+    //   if (isLoggedIn || error) {
+    //     setLoading(false);
+    //   }
+    // }, [isLoggedIn, error]);
+    
 
 
 
@@ -147,15 +172,15 @@ const HomePage = () => {
 
 
 
-  if (loading) {
-    return (
-      <div className="loader-container">
-        <svg className="load" viewBox="25 25 50 50">
-          <circle r="20" cy="50" cx="50"></circle>
-        </svg>
-      </div>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <div className="loader-container">
+  //       <svg className="load" viewBox="25 25 50 50">
+  //         <circle r="20" cy="50" cx="50"></circle>
+  //       </svg>
+  //     </div>
+  //   );
+  // }
 
   if (error) {
     return <p style={{ color: 'red' }}>{error}</p>;
@@ -174,8 +199,6 @@ const HomePage = () => {
   return (
     <>
       <main className="pageContainer">
-
-
         <header className='Main m-Header'>
           <section className='container'>
             <div className='innerLogo'>

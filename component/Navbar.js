@@ -37,9 +37,7 @@ const Navbar = (props) => {
                                 <span className="linklabel">NT Members</span>
                                 <span className="submenuIcon"><MdOutlineKeyboardArrowDown /></span>
                             </Link>
-                            <ul>
-                                <li><Link href="/admin/event/userlist">Manage Team</Link></li>
-                            </ul>
+                           
                         </li>
 
                         {/* Upload Excel */}

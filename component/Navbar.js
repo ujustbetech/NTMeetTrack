@@ -4,8 +4,10 @@ import { MdEventAvailable, MdOutlineKeyboardArrowDown } from "react-icons/md";
 import { RiListSettingsLine } from "react-icons/ri";
 import { FaRegUser } from "react-icons/fa";
 import Link from 'next/link';
+import { MdChecklist } from "react-icons/md";
 import { useRouter } from "next/router";
-
+import { BsCashCoin } from "react-icons/bs";
+import { FaFileUpload } from "react-icons/fa";
 
 const Navbar = (props) => {
     const router = useRouter();
@@ -29,6 +31,7 @@ const Navbar = (props) => {
                                 <li><Link href="/admin/event/manageEvent">Manage Event</Link></li>
                             </ul>
                         </li>
+                        
 
                         {/* Users */}
                         <li>
@@ -43,19 +46,24 @@ const Navbar = (props) => {
                         {/* Upload Excel */}
                         <li>
                             <Link href="/admin/Suggestion">
-                                <span className="icons"><RiListSettingsLine /></span>
+                                <span className="icons"><MdChecklist /></span>
                                 <span className="linklabel">Suggestion List</span>
                             </Link>
                         </li>
                         <li>
-                            <Link href="/admin/CPAdd">
-                                <span className="icons"><RiListSettingsLine /></span>
-                                <span className="linklabel">CPList</span>
+                            <Link href="">
+                                <span className="icons"><BsCashCoin /></span>
+                                <span className="linklabel">Contribution Points</span>
                             </Link>
-                        </li>
+                
+                        <ul>
+                                <li><Link href="/admin/CPAdd">Add CP </Link></li>
+                                <li><Link href="/admin/CPList">Manage CP</Link></li>
+                            </ul>
+                            </li>
                         <li>
                             <Link href="/admin/event/upload">
-                                <span className="icons"><RiListSettingsLine /></span>
+                                <span className="icons"><FaFileUpload /></span>
                                 <span className="linklabel">Upload Excel</span>
                             </Link>
                         </li>

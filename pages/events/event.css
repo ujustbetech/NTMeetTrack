@@ -1056,12 +1056,13 @@ circle {
   padding-top: 6px;
   font-weight: 500;
 }
-.statusbtn{
-  display: flex
-  ;
-      flex-direction: row;
-      gap: 140px;
+
+.statusbtn {
+  display: flex;
+  flex-direction: row;
+  gap: 140px;
 }
+
 .meetingLable2 {
   padding: 3px 8px;
   font-size: 9px;
@@ -1075,6 +1076,7 @@ circle {
   padding-top: 6px;
   font-weight: 500;
 }
+
 .meetingLable3 {
   padding: 3px 8px;
   font-size: 9px;
@@ -1203,6 +1205,7 @@ circle {
   background-color: #819eb0;
   border-radius: 50%;
 }
+
 .loader2 {
   width: 48px;
   height: 48px;
@@ -1213,22 +1216,24 @@ circle {
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
   }
 
-  @keyframes rotation {
-  0% {
-      transform: rotate(0deg);
-  }
   100% {
-      transform: rotate(360deg);
-      }
-  } 
-.loader{
+    transform: rotate(360deg);
+  }
+}
+
+.loader {
   display: flex;
   justify-content: center;
-  align-items:flex-start;
-   height: 100vh;
-   padding-top: 200px;
+  align-items: flex-start;
+  height: 100vh;
+  padding-top: 200px;
 }
 
 .suggestion-btn {
@@ -1491,4 +1496,147 @@ circle {
   display: flex;
   flex-direction: column;
   row-gap: 10px;
+}
+
+.cp-table-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  padding: 0 30px;
+  /* Adds padding on both sides */
+}
+
+.cp-table {
+  width: 100%;
+  max-width: 900px;
+  /* Prevents table from being too wide */
+  border-collapse: collapse;
+  margin: 20px 0;
+  font-size: 18px;
+  text-align: left;
+  background-color: #ffffff;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.cp-table thead {
+  background-color: #fe6f06;
+  color: white;
+}
+
+.cp-table th,
+.cp-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #ddd;
+}
+
+.cp-table tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.cp-table tbody tr:hover {
+  background-color: #f1f1f1;
+  cursor: pointer;
+}
+
+.cp-table th {
+  text-transform: uppercase;
+}
+
+.cp-table td {
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .cp-table {
+    font-size: 16px;
+  }
+
+  .cp-table-container {
+    padding: 0 30px;
+    /* Reduce padding on smaller screens */
+  }
+
+  .cp-table th,
+  .cp-table td {
+    padding: 10px;
+  }
+}
+
+/* From Uiverse.io by UNDERMAKEING */
+/* From Uiverse.io by vinodjangid07 */
+.reward-btn {
+  width: 120px;
+  height: 40px;
+  background-color: #101218;
+  display: flex;
+  position: relative;
+  right: 10px;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
+  color: #FFF;
+}
+
+.headerRight {
+  display: flex;
+}
+
+.IconContainer {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.IconContainer svg {
+  width: 40%;
+  z-index: 3;
+}
+
+.box-top {
+  transition: all 0.3s;
+}
+
+.text {
+  width: 70px;
+  height: 100%;
+  font-size: 13px;
+  color: #6a8ef6;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  font-weight: 600;
+}
+
+.reward-btn:hover .IconContainer .box-top {
+  transform: translateY(-5px);
+}
+
+.reward-btn:hover {
+  background-color: #202531;
+}
+
+.reward-btn:hover .coin {
+  transform: translateY(-5px);
+  transition-delay: 0.2s;
+}
+
+.coin {
+  width: 25%;
+  height: 25%;
+  background-color: #e4d61a;
+  position: absolute;
+  border-radius: 50%;
+  transition: all 0.3s;
+  z-index: 1;
+  border: 2px solid #ffe956;
+  margin-top: 4px;
 }

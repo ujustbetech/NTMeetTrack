@@ -78,46 +78,81 @@ export default function AddActivity() {
   
   return (
     <Layout>
-    <div>
-      <h2>Add Activity</h2>
-      <form onSubmit={handleSubmit}>
-        <label>NT Member:</label>
-        <select onChange={handleMemberChange} value={selectedMember}>
-          <option value="">Select Member</option>
-          {ntMembers.map(member => (
-            <option key={member.id} value={member.id}>{member.name}</option>
-          ))}
-        </select>
-        <br />
-
-        <label>Phone Number:</label>
-        <input type="text" value={phoneNumber} readOnly />
-        <br />
-
-        <label>Activity Type:</label>
-        <select onChange={handleActivityTypeChange} value={activityType}>
-          <option value="">Select Activity</option>
-          {Object.keys(activityTypes).map(type => (
-            <option key={type} value={type}>{type}</option>
-          ))}
-        </select>
-        <br />
-
-        <label>Activity No:</label>
-        <input type="text" value={activityNo} readOnly />
-        <br />
-
-        <label>CP Points:</label>
-        <input type="text" value={points} readOnly />
-        <br />
-
-        <label>Activity Description:</label>
-        <input type="text" value={activityDescription} onChange={(e) => setActivityDescription(e.target.value)} />
-        <br />
-
-        <button type="submit">Add Activity</button>
-      </form>
-    </div>
+      <section className="c-form box">
+        <h2>Create New Event</h2>
+        <h2>Add Activity</h2>
+        <form onSubmit={handleSubmit}>
+          <ul>
+            <li className="form-row">
+              <h4>Select Member<sup>*</sup></h4>
+              <div className="multipleitem">
+                <select onChange={handleMemberChange} value={selectedMember}>
+                  <option value="">Select Member</option>
+                  {ntMembers.map((member) => (
+                    <option key={member.id} value={member.id}>
+                      {member.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </li>
+  
+            <li className="form-row">
+              <h4>Phone Number<sup>*</sup></h4>
+              <div className="multipleitem">
+                <input type="text" value={phoneNumber} readOnly />
+              </div>
+            </li>
+  
+            <li className="form-row">
+              <h4>Select Activity<sup>*</sup></h4>
+              <div className="multipleitem">
+                <select onChange={handleActivityTypeChange} value={activityType}>
+                  <option value="">Select Activity</option>
+                  {Object.keys(activityTypes).map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </li>
+  
+            <li className="form-row">
+              <h4>Activity No<sup>*</sup></h4>
+              <div className="multipleitem">
+                <input type="text" value={activityNo} readOnly />
+              </div>
+            </li>
+  
+            <li className="form-row">
+              <h4>Points<sup>*</sup></h4>
+              <div className="multipleitem">
+                <input type="text" value={points} readOnly />
+              </div>
+            </li>
+  
+            <li className="form-row">
+              <h4>Activity Description<sup>*</sup></h4>
+              <div className="multipleitem">
+                <input
+                  type="text"
+                  value={activityDescription}
+                  onChange={(e) => setActivityDescription(e.target.value)}
+                />
+              </div>
+            </li>
+            <li className='form-row'>
+            <div>
+              <button className='submitbtn' type='submit' >
+              Add Activity
+              </button>
+            </div>    
+          </li>
+         
+          </ul>
+        </form>
+      </section>
     </Layout>
   );
-}
+}  

@@ -151,7 +151,7 @@ await Promise.all(promises);
    <>
     <section className='c-form  box'>
       <h2>Create New Event</h2>
-    
+     
          
       <form onSubmit={handleCreateEvent}>
         <ul>

@@ -63,6 +63,7 @@ const UploadExcel = () => {
             activityNo: row["Activity No"] || "",
             points: row["Points"] || 0, // Default to 0 if missing
             activityDescription: row["Activity Discription"] || "",
+            activityType: row["Activity Type"] || "",
             phoneNumber,
           };
   

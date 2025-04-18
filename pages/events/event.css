@@ -1581,6 +1581,54 @@ circle {
   transition: all 0.3s;
   color: #FFF;
 }
+/* Search Bar Styling */
+.search {
+  display: flex;
+  justify-content: center;
+  margin: 20px auto;
+  max-width: 500px;
+}
+
+.searchTerm {
+  width: 100%;
+  padding: 10px 15px;
+  border: 2px solid #ccc;
+  border-right: none;
+  border-radius: 30px 0 0 30px;
+  outline: none;
+  font-size: 16px;
+}
+
+.searchButton {
+  padding: 10px 15px;
+  background-color: #fe6f06;
+  border: 2px solid #fe6f06;
+  border-left: none;
+  color: white;
+  cursor: pointer;
+  border-radius: 0 30px 30px 0;
+  transition: background-color 0.3s;
+}
+
+.searchButton:hover {
+  background-color: #d8600a;
+}
+.clearButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #888;
+  margin-left: 8px;
+}
+
+
+/* Highlighted Text */
+mark {
+  background-color: #ffff00;
+  padding: 0 2px;
+  border-radius: 3px;
+}
 
 .headerRight {
   display: flex;

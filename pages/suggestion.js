@@ -6,6 +6,7 @@ import '/pages/events/event.css'; // Ensure your CSS file is correctly linked
 import Layout from '../component/Layout';
 import { collection, getDocs, query, where, doc, updateDoc, getDoc } from "firebase/firestore";
 import { set } from "date-fns";
+import { FaSearch } from "react-icons/fa";
 
 const FeedbackList = () => {
   const router = useRouter();
@@ -17,6 +18,7 @@ const FeedbackList = () => {
   const [filteredFeedback, setFilteredFeedback] = useState([]);
   const [showpopup, setshowpopup] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState(""); // Default empty filter
+  const [searchTerm, setSearchTerm] = useState('');
 
  
   const filterTab = ["All",   "Acknowledged",
@@ -24,7 +26,7 @@ const FeedbackList = () => {
     "Declined",
     "UJustBe Queue",
     "NT Queue",
-    "Approved"];
+    "Approved","Pending"];
 
   const handleDetails = (index) => {
     // console.log("sigle event ", index);
@@ -101,7 +103,8 @@ const FeedbackList = () => {
        }
  
        setFeedbackList(allFeedback);
-       setFilteredFeedback(allFeedback); // Initially show all feedback
+       setFilteredFeedback(allFeedback);
+        // Initially show all feedback
      } catch (error) {
        console.error("Error fetching feedback:", error);
      } finally {
@@ -114,13 +117,28 @@ const FeedbackList = () => {
    }, []);
  
    useEffect(() => {
-     if (selectedFilter === "All" || !selectedFilter) {
-       setFilteredFeedback(feedbackList);
-     } else {
-       setFilteredFeedback(feedbackList.filter((item) => item.predefined === selectedFilter));
-     }
-   }, [selectedFilter, feedbackList]);
-
+    let updatedList = feedbackList;
+  
+    if (selectedFilter && selectedFilter !== "All") {
+      updatedList = updatedList.filter(
+        (item) => item.predefined === selectedFilter
+      );
+    }
+  
+    if (searchTerm.trim() !== "") {
+      updatedList = updatedList.filter((item) => {
+        const lowerSearch = searchTerm.toLowerCase();
+        return (
+          item.eventName.toLowerCase().includes(lowerSearch) ||
+          item.suggestion.toLowerCase().includes(lowerSearch) ||
+          item.userName.toLowerCase().includes(lowerSearch)
+        );
+      });
+    }
+  
+    setFilteredFeedback(updatedList);
+  }, [selectedFilter, searchTerm, feedbackList]);
+  
   const updateStatus = async (feedbackId, eventId, userDocId) => {
     try {
       const userRef = doc(db, `NTmeet/${eventId}/registeredUsers`, userDocId);
@@ -193,7 +211,21 @@ const FeedbackList = () => {
     });
   };
   
-
+  const highlightMatch = (text, query) => {
+    if (!query) return text;
+  
+    const regex = new RegExp(`(${query})`, 'gi');
+    const parts = text.split(regex);
+  
+    return parts.map((part, index) =>
+      part.toLowerCase() === query.toLowerCase() ? (
+        <mark key={index}>{part}</mark>
+      ) : (
+        part
+      )
+    );
+  };
+  
   return (
 
     <>
@@ -213,6 +245,23 @@ const FeedbackList = () => {
             <h1>Suggestion / Feedback</h1>
             {/* <p>Lets Create Brand Ambasaddor through Contribution</p> */}
           </div>
+          <div className="search">
+  <input
+    type="text"
+    className="searchTerm"
+    placeholder="Search anything..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+  />
+  <button type="button" className="searchButton">
+    <FaSearch />
+  </button>
+  {searchTerm && (
+    <button className="clearButton" onClick={() => setSearchTerm("")}>×</button>
+  )}
+</div>
+
+
 
           <div className='container filterTab'>
             <h4>Filter</h4>
@@ -244,8 +293,9 @@ const FeedbackList = () => {
                   <div className="boxHeading">
                     <span>{feedback.userName.charAt(0)}</span>
                     <div className="suggestions">
-                      <h4>{feedback.eventName}</h4>
-                      <p>{feedback.suggestion}</p>
+                    <h4>{highlightMatch(feedback.eventName, searchTerm)}</h4>
+<p>{highlightMatch(feedback.suggestion, searchTerm)}</p>
+
                     </div>
                   </div>
                   <div className="viewPlus" onClick={() => handleDetails(feedback)}> View Details + </div>

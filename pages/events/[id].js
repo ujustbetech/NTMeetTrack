@@ -628,17 +628,17 @@ const EventLoginPage = () => {
             {/* Accept */}
             {showResponseModal && (
               <div className={(showAcceptPopUp ? 'modal-content' : 'modadl-content hide')} >
-                <h2>Do you accept this event?</h2>
+                <h2>Are you Available for the Meeting?</h2>
                 {/* <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy</p> */}
                 <ul className='actionBtns'>
                   <li>
                     <button className="m-button" onClick={handleAccept}>
-                      Accept
+                      Yes
                     </button>
                   </li>
                   <li>
                     <button className="m-button-2" onClick={handleDecline}>
-                      Decline
+                      No
                     </button>
                   </li>
                 </ul>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig"; // Ensure Firestore is configured
-import { collection, getDocs, doc, setDoc } from "firebase/firestore";
+import { collection, getDocs, doc,addDoc } from "firebase/firestore";
 import Layout from "../../component/Layout";
 import "../../src/app/styles/main.scss";
 
@@ -48,34 +48,33 @@ export default function AddActivity() {
     setPoints(points || "");
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!selectedMember || !activityType || !activityDescription) {
-      return alert("Please fill all fields");
-    }
-  
-    const { activityNo, points } = activityTypes[activityType] || {};
-  
-    // Reference to the 'activities' subcollection inside the selected NTMember document
-    const userRef = doc(db, "NTMembers", phoneNumber, "activities", activityType);
-  
-    await setDoc(userRef, {
-      month: new Date().toLocaleString("default", { month: "short", year: "numeric" }),
-      activityNo,
-      activityType,
-      points,
-      activityDescription,
-      name: ntMembers.find(m => m.id === selectedMember)?.name || "",
-      phoneNumber
-    }, { merge: true });
-  
-    alert("Activity added successfully!");
-    setActivityType("");
-    setActivityNo("");
-    setPoints("");
-    setActivityDescription("");
-  };
-  
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (!selectedMember || !activityType || !activityDescription) {
+    return alert("Please fill all fields");
+  }
+
+  const { activityNo, points } = activityTypes[activityType] || {};
+
+  const activitiesRef = collection(db, "NTMembers", phoneNumber, "activities");
+
+  await addDoc(activitiesRef, {
+    month: new Date().toLocaleString("default", { month: "short", year: "numeric" }),
+    activityNo,
+    activityType,
+    points,
+    activityDescription,
+    name: ntMembers.find(m => m.id === selectedMember)?.name || "",
+    phoneNumber
+  });
+
+  alert("Activity added successfully!");
+  setActivityType("");
+  setActivityNo("");
+  setPoints("");
+  setActivityDescription("");
+};
+
   return (
     <Layout>
       <section className="c-form box">

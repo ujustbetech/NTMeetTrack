@@ -37,48 +37,40 @@ const UploadExcel = () => {
     reader.readAsArrayBuffer(file);
   };
   
-  const uploadDataToFirestore = async () => {
-    if (excelData) {
-      try {
-        for (let row of excelData) {
-          const phoneNumber = String(row["Mobile Number"] || "").trim(); // Ensure phone number is a string
-          if (!phoneNumber) {
-            console.error("Skipping row due to missing phone number:", row);
-            continue; // Skip rows without a phone number
-          }
-  
-          const userRef = doc(db, "NTMembers", phoneNumber);
-          
-          // Ensure all fields have values, defaulting to an empty string if missing
-          const activityType = String(row["Activity Type"] || "").trim(); // Use activity type as doc ID
-          if (!activityType) {
-            console.error("Skipping row due to missing activity type:", row);
-            continue; // Skip rows without an activity type
-          }
-  
-          const activityRef = doc(userRef, "activities", activityType); // Use activityType as doc ID
-  
-          const activityData = {
-            month: row["Month"] || "",
-            activityNo: row["Activity No"] || "",
-            points: row["Points"] || 0, // Default to 0 if missing
-            activityDescription: row["Activity Discription"] || "",
-            activityType: row["Activity Type"] || "",
-            phoneNumber,
-          };
-  
-          // Add or update the document in Firestore
-          await setDoc(activityRef, activityData);
+ const uploadDataToFirestore = async () => {
+  if (excelData) {
+    try {
+      for (let row of excelData) {
+        const phoneNumber = String(row["Mobile Number"] || "").trim(); // Ensure phone number is a string
+        if (!phoneNumber) {
+          console.error("Skipping row due to missing phone number:", row);
+          continue;
         }
-        alert("Data uploaded successfully to Firestore!");
-      } catch (error) {
-        console.error("Error uploading data:", error);
+
+        const userRef = doc(db, "NTMembers", phoneNumber);
+        const activitiesCollectionRef = collection(userRef, "activities"); // Reference to the activities subcollection
+
+        const activityData = {
+          month: row["Month"] || "",
+          activityNo: row["Activity No"] || "",
+          points: row["Points"] || 0,
+          activityDescription: row["Activity Discription"] || "",
+          activityType: row["Activity Type"] || "",
+          phoneNumber,
+        };
+
+        // Add activity with unique Firestore-generated ID
+        await addDoc(activitiesCollectionRef, activityData);
       }
-    } else {
-      alert("Please upload a file first.");
+
+      alert("Data uploaded successfully to Firestore!");
+    } catch (error) {
+      console.error("Error uploading data:", error);
     }
-  };
-  
+  } else {
+    alert("Please upload a file first.");
+  }
+};
 
   return (
     <>

@@ -13,8 +13,47 @@
   padding-top: 50px;
 }
 
+.Mains {
+  width: 100%;
+  /* padding: 15px; */
+  /* background-color: #218838; */
+}
 
+.m-Headers {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 999;
+  /* background: rgba(22, 39, 79, 0.5); */
+  background: url('/space.jpeg') no-repeat center center fixed;
+  -webkit-box-shadow: 0px 6px 15px 0px rgba(0, 0, 0, 0.41);
+  -moz-box-shadow: 0px 6px 15px 0px rgba(0, 0, 0, 0.41);
+  box-shadow: 0px 6px 15px 0px rgba(0, 0, 0, 0.41);
+}
 
+.m-Headers .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.m-Headers .container span {
+  color: #000000;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  color: #16274f;
+  text-align: center;
+  line-height: 40px;
+  background-color: #819eb0;
+  border-radius: 50%;
+}
+
+.m-Headers .userName {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
 .event-container h1 {
   text-align: center;
   margin-bottom: 30px;

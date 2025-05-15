@@ -326,7 +326,7 @@ export default function EventDetailsPage() {
   return (
     <>
       <main className="pageContainer">
-        <header className='Main m-Header'>
+        <header className='Mains m-Headers'>
           <section className='container'>
             <div className='innerLogo' onClick={() => router.push('/')}>
               <img src="/ujustlogo.png" alt="Logo" className="logo" />

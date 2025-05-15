@@ -172,7 +172,7 @@ const HomePage = () => {
               <img src="/logo.png" alt="Logo" className="logos" />
 
             </div>
-            <p>NT Areana</p>
+            <p>NT Arena</p>
             <form onSubmit={handleLogin}>
               <ul>
                 <li>
@@ -397,7 +397,7 @@ const HomePage = () => {
      More Suggestions
     </button>
     <button className="suggestion-btn" onClick={() => router.push('/Monthlymeetdetails')}>
-  MonthlyMeet Details
+  Explore MonthlyMeet
     </button>
   </div>
   )}

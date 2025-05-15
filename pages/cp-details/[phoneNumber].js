@@ -126,8 +126,8 @@ const CPDetails = () => {
     <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
      More Suggestions
     </button>
-    <button className="suggestion-btn" onClick={() => router.push('/Monthlymeetdetails')}>
-  MonthlyMeet Details
+    <button className="suggestion-btn" onClick={() => router.push('/')}>
+Go To Home Page
     </button>
   </div>
         </section>

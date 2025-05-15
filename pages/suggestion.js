@@ -307,7 +307,7 @@ const FeedbackList = () => {
       </main>
     <div className="sticky-buttons-container">
     <button className="sticky-btn" onClick={() => router.push('/Monthlymeetdetails')}>
-      MonthlyMeet Details
+     Explore MonthlyMeet 
     </button>
     <button className="suggestion-btn" onClick={() => router.push('/')}>
  Go to Home Page

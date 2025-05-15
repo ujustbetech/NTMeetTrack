@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { doc, getDoc, collection, getDocs, setDoc } from 'firebase/firestore';
 import axios from 'axios';
 // import "../src/app/styles/main.scss";
-import '/pages/events/event.css'; // Ensure your CSS file is correctly linked
+import '/pages/events/event.scss'; // Ensure your CSS file is correctly linked
 import { IoMdClose } from "react-icons/io";
 
 const HomePage = () => {
@@ -380,25 +380,33 @@ const HomePage = () => {
 
 
 
-            <div>
-              {loading ? (
+         <div>
+  {loading ? (
+    <div className="loader">
+      <span className="loader2"></span>
+    </div>
+  ) : (
+   <div>
+  {loading ? (
+    <div className="loader">
+      <span className="loader2"></span>
+    </div>
+  ) : (
+     <div className="sticky-buttons-container">
+    <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
+     More Suggestions
+    </button>
+    <button className="suggestion-btn" onClick={() => router.push('/Monthlymeetdetails')}>
+  MonthlyMeet Details
+    </button>
+  </div>
+  )}
+</div>
 
-                <div className='loader'><span className="loader2"></span></div>
+  )}
+</div>
 
-
-              ) : (
-
-                <button
-                  className="suggestion-btn"
-                  onClick={() => router.push('/suggestion')}
-                >
-                  View Suggestion
-                </button>
-
-
-              )}
-            </div>
-
+           
           </div>
 
         </section>

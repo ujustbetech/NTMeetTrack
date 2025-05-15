@@ -4,7 +4,7 @@ import { db } from '../../firebaseConfig';
 import { doc, getDoc, collection, getDocs, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import axios from 'axios';
 // import "../../src/app/styles/main.scss";
-import './event.css'; // Ensure your CSS file is correctly linked
+import './event.scss'; // Ensure your CSS file is correctly linked
 import { IoMdClose } from "react-icons/io";
 import Modal from 'react-modal';
 import { createMarkup } from '../../component/util';
@@ -598,12 +598,14 @@ const EventLoginPage = () => {
               </div>
             </div>
 
-            <button
-              className="suggestion-btn"
-              onClick={() => router.push('/suggestion')}
-            >
-              View Suggestion
-            </button>
+            <div className="sticky-buttons-container">
+    <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
+     More Suggestions
+    </button>
+    <button className="suggestion-btn" onClick={() => router.push('/')}>
+Go to Home Page
+    </button>
+  </div>
 
             {/* Agenda Modal */}
             {showModal && (

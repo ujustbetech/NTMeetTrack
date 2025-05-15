@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from 'next/router';
 import { db } from "../firebaseConfig";
 import { format } from "date-fns";
-import '/pages/events/event.css'; // Ensure your CSS file is correctly linked
+import '/pages/events/event.scss'; // Ensure your CSS file is correctly linked
 import Layout from '../component/Layout';
 import { collection, getDocs, query, where, doc, updateDoc, getDoc } from "firebase/firestore";
 import { set } from "date-fns";
@@ -245,15 +245,15 @@ const FeedbackList = () => {
             <h1>Suggestion / Feedback</h1>
             {/* <p>Lets Create Brand Ambasaddor through Contribution</p> */}
           </div>
-          <div className="search">
+          <div className="searchbox">
   <input
     type="text"
-    className="searchTerm"
+    className="searchTermbox"
     placeholder="Search anything..."
     value={searchTerm}
     onChange={(e) => setSearchTerm(e.target.value)}
   />
-  <button type="button" className="searchButton">
+  <button type="button" className="searchButtonbox">
     <FaSearch />
   </button>
   {searchTerm && (
@@ -305,9 +305,14 @@ const FeedbackList = () => {
           )}
         </section>
       </main>
-      <button className="suggestion-btn" onClick={() => router.push('/')}>
-        Go to Home
-      </button>
+    <div className="sticky-buttons-container">
+    <button className="sticky-btn" onClick={() => router.push('/Monthlymeetdetails')}>
+      MonthlyMeet Details
+    </button>
+    <button className="suggestion-btn" onClick={() => router.push('/')}>
+ Go to Home Page
+    </button>
+  </div>
 
       {
         showpopup ? <section className="PopupMain">

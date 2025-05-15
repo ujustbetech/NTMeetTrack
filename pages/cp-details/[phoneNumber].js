@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig"; // Adjust if needed
-import '/pages/events/event.css';
+import '/pages/events/event.scss';
 
 const CPDetails = () => {
   const router = useRouter();
@@ -122,9 +122,14 @@ const CPDetails = () => {
             </div>
           )}
 
-          <button className="suggestion-btn" onClick={() => router.push('/')}>
-            Go to Home
-          </button>
+        <div className="sticky-buttons-container">
+    <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
+     More Suggestions
+    </button>
+    <button className="suggestion-btn" onClick={() => router.push('/Monthlymeetdetails')}>
+  MonthlyMeet Details
+    </button>
+  </div>
         </section>
       </main>
     </>

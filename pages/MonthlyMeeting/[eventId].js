@@ -112,7 +112,7 @@ export default function EventDetailsPage() {
   };
 
  const renderTabContent = () => {
-  if (!eventInfo) return <p>Loading...</p>;
+  if (!eventInfo) return <div className='loader'><span className="loader2"></span></div>
 
   switch (activeTab) {
     case 'agenda':
@@ -429,7 +429,14 @@ export default function EventDetailsPage() {
               </div>
               {/* Tabs */}
 
-
+<div className="sticky-buttons-container">
+    <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
+     More Suggestions
+    </button>
+    <button className="suggestion-btn" onClick={() => router.push('/Monthlymeetdetails')}>
+Go to Home Page
+    </button>
+  </div>
               {/* Tab content */}
 
             </div>

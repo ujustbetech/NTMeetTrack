@@ -292,29 +292,32 @@ export default function EventDetailsPage() {
 
     case 'users':
       return (
-        <>
-          <h3>Registered Users</h3>
-          {users?.length > 0 ? (
-            <table className="user-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Attended</th>
-                </tr>
-              </thead>
-              <tbody>
-                {users.map((user) => (
-                  <tr key={user.phone}>
-                    <td>{user.name}</td>
-                    <td>{user.attendance}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          ) : (
-            <p>Yet to be uploaded</p>
-          )}
-        </>
+          <>
+  <h3>Registered Users</h3>
+  {users?.length > 0 ? (
+    <>
+      <p>Orbiters Participated: {users.filter(user => user.attendance === 'Yes').length}</p>
+      <table className="user-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Attended</th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr key={user.phone}>
+              <td>{user.name}</td>
+              <td>{user.attendance}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </>
+  ) : (
+    <p>Yet to be uploaded</p>
+  )}
+</>
       );
 
     default:
@@ -397,7 +400,7 @@ export default function EventDetailsPage() {
                   </div>
                   <div className='registeredusers'>
                     <div className="info">
-                      <span>{users.length}</span> people are joining
+                      <span>{users.length}</span> Orbiters have Registered
                     </div>
 
 

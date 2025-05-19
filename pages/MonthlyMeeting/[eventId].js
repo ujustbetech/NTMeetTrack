@@ -67,10 +67,11 @@ export default function EventDetailsPage() {
         const registeredUsersRef = collection(db, `MonthlyMeeting/${eventId}/registeredUsers`);
         const regUsersSnap = await getDocs(registeredUsersRef);
 
-        const userDetails = await Promise.all(
+         const userDetails = await Promise.all(
           regUsersSnap.docs.map(async (docSnap) => {
             const phone = docSnap.id;
             const regUserData = docSnap.data();
+              const userData = docSnap.data();
             const userDoc = await getDoc(doc(db, 'userdetails', phone));
             const name = userDoc.exists() ? userDoc.data()[" Name"] : 'Unknown';
 
@@ -78,6 +79,7 @@ export default function EventDetailsPage() {
               phone,
               name,
               attendance: regUserData.attendanceStatus === true ? 'Yes' : 'No',
+                  feedback: userData.feedback || []
             };
           })
         );
@@ -290,35 +292,77 @@ export default function EventDetailsPage() {
         </>
       );
 
-    case 'users':
-      return (
-          <>
-  <h3>Registered Users</h3>
-  {users?.length > 0 ? (
+     case 'users':
+  return (
     <>
-      <p>Orbiters Participated: {users.filter(user => user.attendance === 'Yes').length}</p>
-      <table className="user-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Attended</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.phone}>
-              <td>{user.name}</td>
-              <td>{user.attendance}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <h3>Registered Users</h3>
+      {users?.length > 0 ? (
+        <>
+          <p>Orbiters Participated: {users.filter(user => user.attendance === 'Yes').length}</p>
+          <table className="user-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Attended</th>
+              
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((user) => (
+                <tr key={user.phone}>
+                  <td>{user.name}</td>
+                  <td
+                    style={{
+                      color: user.attendance === 'Yes' ? 'white' : 'inherit',
+                      backgroundColor: user.attendance === 'Yes' ? '#819eb0' : 'transparent',
+                      fontWeight: user.attendance === 'Yes' ? '600' : 'normal',
+                      textAlign: 'center',
+                    }}
+                  >
+                    {user.attendance}
+                  </td>
+         
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </>
+      ) : (
+        <p>Yet to be uploaded</p>
+      )}
     </>
-  ) : (
-    <p>Yet to be uploaded</p>
-  )}
-</>
-      );
+  );
+
+case 'feedback':
+  return (
+    <>
+      <h3>Feedbacks</h3>
+      {users && users.length > 0 ? (
+        <div className="feedback-list" style={{ maxHeight: '400px', overflowY: 'auto', padding: '10px', border: '1px solid #ccc', borderRadius: '8px' }}>
+          {users
+            .filter(user => user.feedback && user.feedback.length > 0)
+            .map((user) => (
+              <div key={user.phone} style={{ marginBottom: '20px', padding: '10px', backgroundColor: '#f5faff', borderRadius: '6px' }}>
+                <strong>{user.name}</strong>
+                <ul style={{ marginTop: '8px', paddingLeft: '20px' }}>
+                  {user.feedback.map((fb, idx) => (
+                    <li key={idx} style={{ marginBottom: '4px' }}>{fb.custom}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          {users.every(user => !user.feedback || user.feedback.length === 0) && (
+            <p>No feedback has been submitted yet.</p>
+          )}
+        </div>
+      ) : (
+        <p>Yet to be uploaded</p>
+      )}
+    </>
+  );
+
+      
+  
 
     default:
       return <p>Yet to be uploaded</p>;

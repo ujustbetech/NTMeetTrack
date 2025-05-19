@@ -457,7 +457,7 @@ case 'feedback':
                   <div className="tabs">
                     {[
                       'agenda', 'MoM', 'facilitators', 'knowledge',
-                      'prospects', 'referrals', 'requirements', 'e2a', '121', 'users'
+                      'prospects', 'referrals', 'requirements', 'e2a', '121', 'users' ,'feedback'
                     ].map(tab => (
                       <button
                         key={tab}

@@ -411,7 +411,7 @@ const EventLoginPage = () => {
               <img src="/logo.png" alt="Logo" className="logos" />
 
             </div>
-            <p>NT Areana</p>
+            <p>NT Arena</p>
             <form onSubmit={handleLogin}>
               <ul>
                 <li>

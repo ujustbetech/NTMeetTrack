@@ -57,50 +57,48 @@ const HomePage = () => {
   }, []); // Empty dependency array to run only on mount
 
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    const getNTEventList = async () => {
-      try {
-        const eventCollection = collection(db, "NTmeet");
-        const eventSnapshot = await getDocs(eventCollection);
-        const eventList = eventSnapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        }));
+const handleLogin = async (e) => {
+  e.preventDefault();
 
-        // Sort events by latest date (descending order)
-        eventList.sort((a, b) => b.time.seconds - a.time.seconds);
-
-        setEventList(eventList);
-        console.log("Sorted events", eventList);
-      } catch (err) {
-        console.error("Error fetching team members:", err);
-      }
-    };
-
+  const getNTEventList = async () => {
     try {
-      const response = await axios.post('https://api.ujustbe.com/mobile-check', {
-        MobileNo: phoneNumber,
-      });
+      const eventCollection = collection(db, "NTmeet");
+      const eventSnapshot = await getDocs(eventCollection);
+      const eventList = eventSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-      if (response.data.message[0].type === 'SUCCESS') {
-        console.log('✅ Phone number verified:', response.data);
-
-        // ✅ Store the phone number as 'ntnumber' in localStorage
-        localStorage.setItem('ntnumber', phoneNumber);
-
-        setIsLoggedIn(true);
-        fetchUserName(phoneNumber);
-        getNTEventList();
-        setLoading(false);
-      } else {
-        setError('Phone number not registered.');
-      }
+      // Sort by latest date
+      eventList.sort((a, b) => b.time.seconds - a.time.seconds);
+      setEventList(eventList);
+      console.log("Sorted events", eventList);
     } catch (err) {
-      // console.error('❌ Error during login:', err);
-      setError('Login failed. Please try again.');
+      console.error("Error fetching events:", err);
     }
   };
+
+  try {
+    const docRef = doc(db, "NTMembers", phoneNumber);
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      console.log('✅ Phone number found in NTMembers');
+
+      localStorage.setItem('ntnumber', phoneNumber);
+      setIsLoggedIn(true);
+      fetchUserName(phoneNumber);
+      getNTEventList();
+      setLoading(false);
+    } else {
+      setError('You are not a NT Member.');
+    }
+  } catch (err) {
+    console.error('❌ Error checking phone number:', err);
+    setError('Login failed. Please try again.');
+  }
+};
+
   useEffect(() => {
     const fetchCP = async () => {
       try {

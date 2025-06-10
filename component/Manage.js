@@ -79,7 +79,7 @@ const ManageEvents = () => {
         try {
             console.log("Fetching all NTMembers...");
     
-            const membersRef = collection(db, "NTMember");
+            const membersRef = collection(db, "NTMembers");
             const membersSnapshot = await getDocs(membersRef);
             const members = membersSnapshot.docs.map(doc => doc.data());
     

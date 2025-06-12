@@ -1,111 +1,84 @@
 import { useState, useEffect } from "react";
 import { db } from "../../firebaseConfig";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc
+} from "firebase/firestore";
+import Layout from "../../component/Layout";
+import Swal from "sweetalert2";
 import "../../src/app/styles/main.scss";
-import Layout from '../../component/Layout';
-import { collection, getDocs,getDoc, query, where, doc, updateDoc } from "firebase/firestore";
 
-const FeedbackList = () => {
-  const [feedbackList, setFeedbackList] = useState([]);
+const SuggestionList = () => {
+  const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchFeedback = async () => {
+  const fetchSuggestions = async () => {
     setLoading(true);
     try {
-      const eventsCollection = collection(db, "NTmeet");
-      const eventsSnapshot = await getDocs(eventsCollection);
-      let allFeedback = [];
+      const suggestionsRef = collection(db, "suggestions");
+      const snapshot = await getDocs(suggestionsRef);
 
-      for (const eventDoc of eventsSnapshot.docs) {
-        const eventData = eventDoc.data();
-        const eventId = eventDoc.id;
-        const eventName = eventData.name || "Unknown Event";
+      const suggestionsData = snapshot.docs.map(docItem => {
+        const data = docItem.data();
+        let formattedDate = "N/A";
 
-        const usersCollection = collection(db, `NTmeet/${eventId}/registeredUsers`);
-        const usersSnapshot = await getDocs(usersCollection);
-
-        for (const userDoc of usersSnapshot.docs) {
-          const userData = userDoc.data();
-          const phoneNumber = userData.phoneNumber || "";
-
-          let userName = "Unknown User";
-          if (phoneNumber) {
-            const membersCollection = collection(db, "NTMember");
-            const q = query(membersCollection, where("phoneNumber", "==", phoneNumber));
-            const membersSnapshot = await getDocs(q);
-            if (!membersSnapshot.empty) {
-              const memberData = membersSnapshot.docs[0].data();
-              userName = memberData.name || "Unknown User";
-            }
-          }
-
-          if (userData.feedback && userData.feedback.length > 0) {
-            userData.feedback.forEach((feedbackEntry, index) => {
-              const formattedDate = feedbackEntry.timestamp
-                ? new Date(feedbackEntry.timestamp).toLocaleString("en-US", {
-                    year: "numeric",
-                    month: "short",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })
-                : "N/A";
-
-              allFeedback.push({
-                id: `${userDoc.id}-${index}`,
-                eventId,
-                userDocId: userDoc.id,
-                eventName,
-                userName,
-                suggestion: feedbackEntry.custom || feedbackEntry.predefined || "N/A",
-                date: formattedDate,
-                status: feedbackEntry.status || "Yet to be Discussed",
-              });
-            });
-          }
+        if (data.date?.toDate) {
+          const dateObj = data.date.toDate();
+          formattedDate = dateObj.toLocaleDateString("en-GB"); // dd/mm/yyyy
         }
-      }
 
-      setFeedbackList(allFeedback);
+        return {
+          id: docItem.id,
+          eventName: data.eventName || "N/A",
+          taskDescription: data.taskDescription || "N/A",
+          createdBy: data.createdBy || "N/A",
+          assignedTo: data.assignedTo || "N/A",
+          date: formattedDate,
+          status: data.status || "Pending",
+        };
+      });
+
+      setSuggestions(suggestionsData);
     } catch (error) {
-      console.error("Error fetching feedback:", error);
+      console.error("Error fetching suggestions:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const updatePredefined = async (feedbackId, eventId, userDocId, newPredefined) => {
-    try {
-      const userRef = doc(db, `NTmeet/${eventId}/registeredUsers`, userDocId);
-      const userSnapshot = await getDoc(userRef);
-  
-      if (userSnapshot.exists()) {
-        const userData = userSnapshot.data();
-        
-        // Update only the `predefined` field in the specific feedback entry
-        const updatedFeedback = userData.feedback.map((feedback, index) =>
-          `${userDocId}-${index}` === feedbackId 
-            ? { ...feedback, predefined: newPredefined } 
-            : feedback
-        );
-  
-        // Update Firestore
-        await updateDoc(userRef, { feedback: updatedFeedback });
-  
-        // Update state to reflect changes in UI
-        setFeedbackList((prevList) =>
-          prevList.map((feedback) =>
-            feedback.id === feedbackId ? { ...feedback, predefined: newPredefined } : feedback
+  const updateStatus = async (suggestionId, newStatus) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: `Change status to "${newStatus}"?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes, update it!",
+      cancelButtonText: "Cancel"
+    });
+
+    if (result.isConfirmed) {
+      try {
+        const docRef = doc(db, "suggestions", suggestionId);
+        await updateDoc(docRef, { status: newStatus });
+
+        setSuggestions(prev =>
+          prev.map(s =>
+            s.id === suggestionId ? { ...s, status: newStatus } : s
           )
         );
+
+        Swal.fire("Updated!", "Status has been updated.", "success");
+      } catch (error) {
+        Swal.fire("Error", "Failed to update status.", "error");
+        console.error("Error updating status:", error);
       }
-    } catch (error) {
-      console.error("Error updating predefined field:", error);
     }
   };
-  
 
   useEffect(() => {
-    fetchFeedback();
+    fetchSuggestions();
   }, []);
 
   return (
@@ -114,42 +87,39 @@ const FeedbackList = () => {
         <div>
           <h2>Suggestion List</h2>
           {loading ? (
-            <div className='loader'><span className="loader2"></span></div>
+            <div className="loader"><span className="loader2"></span></div>
           ) : (
             <table className="table-class">
               <thead>
                 <tr>
                   <th>Event Name</th>
-                  <th>User Name</th>
-                  <th>Suggestion</th>
+                  <th>Task Description</th>
+                  <th>Created By</th>
+                  <th>Assigned To</th>
                   <th>Date</th>
                   <th>Status</th>
                 </tr>
               </thead>
               <tbody>
-                {feedbackList.map((feedback, index) => (
+                {suggestions.map((s, index) => (
                   <tr key={index}>
-                    <td>{feedback.eventName}</td>
-                    <td>{feedback.userName}</td>
-                    <td>{feedback.suggestion}</td>
-                    <td>{feedback.date}</td>
+                    <td>{s.eventName}</td>
+                    <td>{s.taskDescription}</td>
+                    <td>{s.createdBy}</td>
+                    <td>{s.assignedTo}</td>
+                    <td>{s.date}</td>
                     <td>
-                    <select
-  className="predefined-dropdown"
-  value={feedback.predefined}
-  onChange={(e) => updatePredefined(feedback.id, feedback.eventId, feedback.userDocId, e.target.value)}
->
-  <option value="Acknowledged">Acknowledged</option>
-  <option value="Accepted">Accepted</option>
-  <option value="Declined">Declined</option>
-  <option value="UJustBe Queue">UJustBe Queue</option>
-  <option value="NT Queue">NT Queue</option>
-  <option value="Approved">Approved</option>
-</select>
-
-</td>
-
-
+                      <select
+                        className="predefined-dropdown"
+                        value={s.status}
+                        onChange={(e) => updateStatus(s.id, e.target.value)}
+                      >
+                        <option value="Pending">Pending</option>
+                        <option value="In Review">In Review</option>
+                        <option value="Approved">Approved</option>
+                        <option value="Rejected">Rejected</option>
+                      </select>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -161,4 +131,4 @@ const FeedbackList = () => {
   );
 };
 
-export default FeedbackList;
+export default SuggestionList;

@@ -1,18 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import * as React from 'react';
 import { db } from '../firebaseConfig';
 import Link from 'next/link'
+import '../src/app/styles/user.scss';
 import { doc, getDoc, collection, getDocs, setDoc } from 'firebase/firestore';
 import axios from 'axios';
-// import "../src/app/styles/main.scss";
-import '/pages/events/event.scss'; // Ensure your CSS file is correctly linked
-import { IoMdClose } from "react-icons/io";
+import HeaderNav from '../component/HeaderNav';
+import UserHeader from '../component/userHeader';
+import Swal from 'sweetalert2';
 
 const HomePage = () => {
   const router = useRouter();
   const { id } = router.query; // Get event name from URL
   const [phoneNumber, setPhoneNumber] = useState('');
-
+  const [value, setValue] = React.useState(0);
   const [error, setError] = useState(null);
   const [userName, setUserName] = useState('');
   const [eventDetails, setEventDetails] = useState(null);
@@ -23,7 +25,131 @@ const HomePage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showModal, setShowModal] = useState(false); // State to show/hide modal
   const [member, setMember] = useState([]); // Store fetched members
+  const [monthlyMetCount, setMonthlyMetCount] = useState(0);
+  const [ntMeetCount, setNtMeetCount] = useState(0);
+  const [suggestionCount, setSuggestionCount] = useState(0);
+  const [pendingSuggestionCount, setPendingSuggestionCount] = useState(0);
+  const [upcomingMonthlyMeet, setUpcomingMonthlyMeet] = useState(null);
+  const [upcomingNTMeet, setUpcomingNTMeet] = useState(null);
 
+  useEffect(() => {
+    const fetchUpcomingEvents = async () => {
+      try {
+        const now = new Date();
+
+        // Fetch Monthly Meeting
+        const monthlySnapshot = await getDocs(collection(db, "MonthlyMeeting"));
+        const monthlyEvents = monthlySnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          time: doc.data().time?.toDate?.() || new Date(0)  // convert Firestore Timestamp to JS Date
+        }));
+
+        // Filter future events and get the earliest one
+        const futureMonthlyEvents = monthlyEvents.filter(e => e.time > now);
+        futureMonthlyEvents.sort((a, b) => a.time - b.time);
+        setUpcomingMonthlyMeet(futureMonthlyEvents[0] || null);
+
+        // Fetch NTmeet
+        const ntMeetSnapshot = await getDocs(collection(db, "NTmeet"));
+        const ntMeetEvents = ntMeetSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+          time: doc.data().time?.toDate?.() || new Date(0)
+        }));
+
+        const futureNTEvents = ntMeetEvents.filter(e => e.time > now);
+        futureNTEvents.sort((a, b) => a.time - b.time);
+        setUpcomingNTMeet(futureNTEvents[0] || null);
+
+      } catch (error) {
+        console.error("Error fetching upcoming events:", error);
+      }
+    };
+
+    fetchUpcomingEvents();
+  }, []);
+  function formatTimeLeft(ms) {
+    if (ms <= 0) return "Meeting Ended";
+
+    const totalSeconds = Math.floor(ms / 1000);
+    const days = Math.floor(totalSeconds / (3600 * 24));
+    const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+    if (days > 0) return `${days}d ${hours}h left`;
+    if (hours > 0) return `${hours}h ${minutes}m left`;
+    return `${minutes}m left`;
+  }
+useEffect(() => {
+  if (!phoneNumber) return; // 👈 important check
+
+  const fetchCP = async () => {
+    try {
+      const activitiesRef = collection(db, "Orbiters", phoneNumber, "activities");
+      const activitiesSnapshot = await getDocs(activitiesRef);
+
+      let totalCP = 0;
+
+      activitiesSnapshot.forEach((doc) => {
+        const data = doc.data();
+        totalCP += Number(data?.points) || 0;
+      });
+
+      setCPPoints(totalCP);
+    } catch (error) {
+      console.error("Error fetching CP points:", error);
+    }
+  };
+
+  fetchCP();
+}, [phoneNumber]);
+
+  useEffect(() => {
+    const fetchDashboardCounts = async () => {
+      if (!phoneNumber) return;
+
+      try {
+        // 1. NTMeet Count
+        const ntMeetSnapshot = await getDocs(collection(db, "NTmeet"));
+        setNtMeetCount(ntMeetSnapshot.size);
+
+        // 2. Monthly Met Count
+        const monthlyMetSnapshot = await getDocs(collection(db, "MonthlyMeeting"));
+        setMonthlyMetCount(monthlyMetSnapshot.size);
+
+        // 3. Suggestions
+        const suggestionSnapshot = await getDocs(collection(db, "suggestions"));
+        setSuggestionCount(suggestionSnapshot.size);
+
+        // 4. Pending Suggestions
+        let pending = 0;
+        suggestionSnapshot.forEach(doc => {
+          if (doc.data().status === "Pending") pending++;
+        });
+        setPendingSuggestionCount(pending);
+      } catch (error) {
+        console.error("Error fetching dashboard counts:", error);
+      }
+    };
+
+    fetchDashboardCounts();
+  }, [phoneNumber]);
+const handleLogout = () => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'You will be logged out.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Logout',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem('ntnumber');
+      window.location.reload(); // or navigate to login
+    }
+  });
+};
 
   useEffect(() => {
     const storedPhoneNumber = localStorage.getItem("ntnumber");
@@ -196,7 +322,6 @@ const handleLogin = async (e) => {
 
 
 
-
   // if (loading) {
   //   return (
   //     <div className="loader-container">
@@ -230,7 +355,7 @@ const handleLogin = async (e) => {
               <img src="/ujustlogo.png" alt="Logo" className="logo" />
             </div>
 
-            <div className='headerRight'>
+       <div className='headerRight'>
               <button onClick={() => router.push(`/cp-details/${phoneNumber}`)} class="reward-btn">
                 <div class="IconContainer">
                   <svg
@@ -313,99 +438,181 @@ const handleLogin = async (e) => {
 
 
 
-
           </section>
         </header>
-
         <section className='dashBoardMain'>
           <div className='container pageHeading'>
             <h1>Hi {userName || 'User'}</h1>
-            <p>Lets Create Brand Ambasaddor through Contribution</p>
+            <p>Let's Create Brand Ambassador through Contribution</p>
           </div>
-       
 
 
-          <div className='container eventList'>
-            {eventList ? eventList?.map(doc => (
-              <div key={doc.id} className='meetingBox'>
-                {doc.momUrl ? <span className='meetingLable2'>Done</span> : <span className='meetingLable'>Current Meeting</span>
-                }
-
-                <div className='meetingDetails'>
-                  <h3 className="eventName">{doc ? doc.name : 'Users not found'}</h3>
-
-                </div>
-                <div className='meetingBoxFooter'>
-                  {registerUsersList ?
-                    <ul>
-                      {registerUsersList ? registerUsersList?.map(doc => (
-                        <li key={doc.id}>
-                          <strong>{getInitials(doc.name)}</strong>
-                          {/* <strong>ID:</strong> {doc.name} <br /> */}
-                        </li>
-                      )) : <div className='loader'><span className="loader2"></span></div>
-
-                      }
-
-                    </ul> : null
-                  }
-
-                  <div className='viewDetails'>
-                    <Link href={`events/${doc.uniqueId}`}>View Details</Link>
-                    {/* <a href=''>View Details</a> */}
-                  </div>
-                  {
-                    doc.momUrl ? <div className="momLink">
-                      <a href={doc.momUrl} target="_blank" rel="noopener noreferrer">
-                        {/* <img src="/zoom-icon.png" alt="Zoom Link" width={30} /> */}
-                        <span>MOM</span>
-                      </a>
-                    </div> : <div className="meetingLink">
-                      <a href={doc?.zoomLink} target="_blank" rel="noopener noreferrer">
-                        {/* <img src="/zoom-icon.png" alt="Zoom Link" width={30} /> */}
-                        <span>Join Meeting</span>
-                      </a>
-                    </div>
-                  }
-
-                </div>
-
+          <section className="project-summary">
+            <Link href="/NTmeetdetails">
+              <div className="summary-card in-progress" style={{ cursor: 'pointer' }}>
+                <p className="count">{ntMeetCount}</p>
+                <p className="label">NT Meetings</p>
               </div>
+            </Link>
+            <Link href="/Monthlymeetdetails">
+              <div className="summary-card in-review" style={{ cursor: 'pointer' }}>
+                <p className="count">{monthlyMetCount}</p>
+                <p className="label">Monthly Meetings</p>
+              </div>
+            </Link>
+            <Link href="/SuggestionList">
+              <div className="summary-card on-hold" style={{ cursor: 'pointer' }}>
+                <p className="count">{suggestionCount}</p>
+                <p className="label">Suggestions</p>
+              </div>
+            </Link>
+            <Link href="/SuggestionList">
+              <div className="summary-card completed" style={{ cursor: 'pointer' }}>
+                <p className="count">{pendingSuggestionCount}</p>
+                <p className="label">Pending Suggestions</p>
+              </div>
+            </Link>
+          </section>
 
-            )) : <div className='loader'><span className="loader2"></span></div>
 
-            }
+          <section className="upcoming-events">
+  <h1>Upcoming Events</h1>
 
+  {upcomingMonthlyMeet && (
+    <div className="meetingBox">
+      <div className="suggestionDetails">
+        {(() => {
+          const now = new Date();
+          const eventDate = upcomingMonthlyMeet.time?.toDate ? upcomingMonthlyMeet.time.toDate() : upcomingMonthlyMeet.time;
+          const timeLeftMs = eventDate - now;
+          const timeLeft = timeLeftMs <= 0 ? 'Meeting Ended' : formatTimeLeft(timeLeftMs);
+          return timeLeft === 'Meeting Ended' ? (
+            <span className="meetingLable2">Meeting Done</span>
+          ) : (
+            <span className="meetingLable3">{timeLeft}</span>
+          );
+        })()}
+        <span className="suggestionTime">
+          {upcomingMonthlyMeet.time?.toDate
+            ? upcomingMonthlyMeet.time.toDate().toLocaleString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true,
+}).replace(',', ' at')
+            : upcomingMonthlyMeet.time.toLocaleString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true,
+}).replace(',', ' at')}
+        </span>
+      </div>
 
+      <div className="meetingDetailsBox">
+        <h3 className="eventName">{upcomingMonthlyMeet.Eventname || 'N/A'}</h3>
+      </div>
 
-         <div>
-  {loading ? (
-    <div className="loader">
-      <span className="loader2"></span>
+      <div className="meetingBoxFooter">
+        <div className="viewDetails">
+          <Link href={`/MonthlyMeeting/${upcomingMonthlyMeet.id}`}>View Details</Link>
+        </div>
+
+        {(() => {
+          const now = new Date();
+          const eventDate = upcomingMonthlyMeet.time?.toDate ? upcomingMonthlyMeet.time.toDate() : upcomingMonthlyMeet.time;
+          const isWithinOneHour = eventDate > now && (eventDate - now <= 60 * 60 * 1000);
+          return isWithinOneHour && upcomingMonthlyMeet.zoomLink ? (
+            <div className="meetingLink">
+              <a href={upcomingMonthlyMeet.zoomLink} target="_blank" rel="noopener noreferrer">
+                <span>Join Meeting</span>
+              </a>
+            </div>
+          ) : null;
+        })()}
+      </div>
     </div>
-  ) : (
-   <div>
-  {loading ? (
-    <div className="loader">
-      <span className="loader2"></span>
+  )}
+
+  {upcomingNTMeet && (
+    <div className="meetingBox">
+      <div className="suggestionDetails">
+        {(() => {
+          const now = new Date();
+          const eventDate = upcomingNTMeet.time?.toDate ? upcomingNTMeet.time.toDate() : upcomingNTMeet.time;
+          const timeLeftMs = eventDate - now;
+          const timeLeft = timeLeftMs <= 0 ? 'Meeting Ended' : formatTimeLeft(timeLeftMs);
+          return timeLeft === 'Meeting Ended' ? (
+            <span className="meetingLable2">Meeting Done</span>
+          ) : (
+            <span className="meetingLable3">{timeLeft}</span>
+          );
+        })()}
+        <span className="suggestionTime">
+          {upcomingNTMeet.time?.toDate
+            ? upcomingNTMeet.time.toDate().toLocaleString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true,
+}).replace(',', ' at')
+            : upcomingNTMeet.time.toLocaleString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+  hour: 'numeric',
+  minute: '2-digit',
+  hour12: true,
+}).replace(',', ' at')}
+        </span>
+      </div>
+
+      <div className="meetingDetailsBox">
+        <h3 className="eventName">{upcomingNTMeet.name || 'N/A'}</h3>
+      </div>
+
+      <div className="meetingBoxFooter">
+        <div className="viewDetails">
+          <Link href={`/events/${upcomingNTMeet.id}`}>View Details</Link>
+        </div>
+
+        {(() => {
+          const now = new Date();
+          const eventDate = upcomingNTMeet.time?.toDate ? upcomingNTMeet.time.toDate() : upcomingNTMeet.time;
+          const isWithinOneHour = eventDate > now && (eventDate - now <= 60 * 60 * 1000);
+          return isWithinOneHour && upcomingNTMeet.zoomLink ? (
+            <div className="meetingLink">
+              <a href={upcomingNTMeet.zoomLink} target="_blank" rel="noopener noreferrer">
+                <span>Join Meeting</span>
+              </a>
+            </div>
+          ) : null;
+        })()}
+      </div>
     </div>
-  ) : (
-     <div className="sticky-buttons-container">
-    <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
-     More Suggestions
-    </button>
-    <button className="suggestion-btn" onClick={() => router.push('/Monthlymeetdetails')}>
-  Explore MonthlyMeet
-    </button>
-  </div>
   )}
-</div>
+</section>
 
-  )}
-</div>
 
-           
+
+
+          <div>
+            {loading ? (
+              <div className="loader">
+                <span className="loader2"></span>
+              </div>
+            ) : <HeaderNav />}
           </div>
+
+
+
+
 
         </section>
       </main>

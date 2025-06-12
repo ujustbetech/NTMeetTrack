@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { doc, getDoc, collection, getDocs } from "firebase/firestore";
 import { db } from "../../firebaseConfig"; // Adjust if needed
-import '/pages/events/event.scss';
-
+import '../../src/app/styles/user.scss';
+import HeaderNav from "../../component/HeaderNav";
+import Swal from 'sweetalert2';
 const CPDetails = () => {
   const router = useRouter();
   const { phoneNumber } = router.query; // Get phone number from URL
@@ -71,7 +72,29 @@ const CPDetails = () => {
   if (loading) {
     return  <div className='loader'><span className="loader2"></span></div>;
   }
-
+  const handleLogout = () => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'You will be logged out.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Logout',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem('ntnumber');
+      window.location.reload(); // or navigate to login
+    }
+  });
+};
+ const getInitials = (name) => {
+    return name
+      .split(" ") // Split the name into words
+      .map(word => word[0]) // Get the first letter of each word
+      .join(""); // Join them together
+  };
+  
+  
   return (
     <>
       <main className="pageContainer">
@@ -80,6 +103,11 @@ const CPDetails = () => {
             <div className="innerLogo" onClick={() => router.push("/")}>
               <img src="/ujustlogo.png" alt="Logo" className="logo" />
             </div>
+             <div>
+         <div className="userName" onClick={handleLogout} style={{ cursor: 'pointer' }}>
+  <span>{getInitials(userName)}</span>
+</div>
+          </div>
           </section>
         </header>
 
@@ -104,7 +132,7 @@ const CPDetails = () => {
           </div>
 
           {filteredActivities.length === 0 ? (
-            <p>No activities found.</p>
+            <p style={{paddingLeft:'15px'}}>No activities found.</p>
           ) : (
             <div className="container suggestionList">
               {filteredActivities.map((activity) => (
@@ -122,14 +150,7 @@ const CPDetails = () => {
             </div>
           )}
 
-        <div className="sticky-buttons-container">
-    <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
-     More Suggestions
-    </button>
-    <button className="suggestion-btn" onClick={() => router.push('/')}>
-Go To Home Page
-    </button>
-  </div>
+    <HeaderNav/>
         </section>
       </main>
     </>

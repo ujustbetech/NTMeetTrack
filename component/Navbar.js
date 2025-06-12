@@ -42,18 +42,24 @@ const Navbar = (props) => {
                             </Link>
                            
                         </li>
-
-                        {/* Upload Excel */}
-                        <li>
+     <li>
                             <Link href="/admin/Suggestion">
-                                <span className="icons"><MdChecklist /></span>
-                                <span className="linklabel">Suggestion List</span>
+                                <span className="icons"><MdEventAvailable /></span>
+                                <span className="linklabel">List</span>
+                                <span className="submenuIcon"><MdOutlineKeyboardArrowDown /></span>
                             </Link>
+                            <ul>
+                                  <li><Link href="/admin/Suggestion">Suggestion List</Link></li>
+                                <li><Link href="/admin/suggestionpage">Add Suggestion</Link></li>
+                                <li><Link href="/admin/existingsuggestion">Assign Suggestion</Link></li>
+                            </ul>
                         </li>
+                        
+                       
                         <li>
                             <Link href="">
                                 <span className="icons"><BsCashCoin /></span>
-                                <span className="linklabel">Contribution Points</span>
+                                <span className="linklabel">CP</span>
                             </Link>
                 
                         <ul>

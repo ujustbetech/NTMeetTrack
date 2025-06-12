@@ -107,7 +107,7 @@ const CreateEvent = () => {
       // Save event in NTmeet
       await setDoc(eventDocRef, eventData);
   // Fetch all NTmember users
-const membersCollectionRef = collection(db, 'NTMember');
+const membersCollectionRef = collection(db, 'NTMembers');
 const membersSnapshot = await getDocs(membersCollectionRef);
 
 const promises = [];

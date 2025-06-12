@@ -5,8 +5,8 @@ import { format } from "date-fns";
 import '/pages/events/event.scss'; // Ensure your CSS file is correctly linked
 import Layout from '../component/Layout';
 import { collection, getDocs, query, where, doc, updateDoc, getDoc } from "firebase/firestore";
-import { set } from "date-fns";
 import { FaSearch } from "react-icons/fa";
+import HeaderNav from "../component/HeaderNav";
 
 const FeedbackList = () => {
   const router = useRouter();
@@ -42,76 +42,49 @@ const FeedbackList = () => {
     setActiveIndex(index);
     setSelectedFilter(filter);
   };
- const fetchFeedback = async () => {
-     setLoading(true);
-     try {
-       const eventsCollection = collection(db, "NTmeet");
-       const eventsSnapshot = await getDocs(eventsCollection);
-       let allFeedback = [];
- 
-       for (const eventDoc of eventsSnapshot.docs) {
-         const eventData = eventDoc.data();
-         const eventId = eventDoc.id;
-         const eventName = eventData.name || "Unknown Event";
-         const eventTime = eventData.time || "Unknown Event";
- 
-         const usersCollection = collection(db, `NTmeet/${eventId}/registeredUsers`);
-         const usersSnapshot = await getDocs(usersCollection);
- 
-         for (const userDoc of usersSnapshot.docs) {
-           const userData = userDoc.data();
-           const phoneNumber = userData.phoneNumber || "";
- 
-           let userName = "Unknown User";
-           if (phoneNumber) {
-             const membersCollection = collection(db, "NTMember");
-             const q = query(membersCollection, where("phoneNumber", "==", phoneNumber));
-             const membersSnapshot = await getDocs(q);
-             if (!membersSnapshot.empty) {
-               const memberData = membersSnapshot.docs[0].data();
-               userName = memberData.name || "Unknown User";
-             }
-           }
- 
-           if (userData.feedback && userData.feedback.length > 0) {
-             userData.feedback.forEach((feedbackEntry, index) => {
-               const formattedDate = feedbackEntry.timestamp
-                 ? new Date(feedbackEntry.timestamp).toLocaleString("en-US", {
-                     year: "numeric",
-                     month: "short",
-                     day: "2-digit",
-                     hour: "2-digit",
-                     minute: "2-digit",
-                   })
-                 : "N/A";
- 
-               allFeedback.push({
-                 id: `${userDoc.id}-${index}`,
-                 eventId,
-                 userDocId: userDoc.id,
-                 eventName,
-                 eventTime,
-                 userName,
-                 suggestion: feedbackEntry.custom || feedbackEntry.predefined || "N/A",
-                 predefined: feedbackEntry.predefined || "N/A", // Store predefined field
-                 date: formattedDate,
-                 status: feedbackEntry.predefined || "Yet to be Discussed",
-               });
-             });
-           }
-         }
-       }
- 
-       setFeedbackList(allFeedback);
-       setFilteredFeedback(allFeedback);
-        // Initially show all feedback
-     } catch (error) {
-       console.error("Error fetching feedback:", error);
-     } finally {
-       setLoading(false);
-     }
-   };
- 
+const fetchFeedback = async () => {
+  setLoading(true);
+  try {
+    const suggestionCollection = collection(db, "suggestions");
+    const suggestionSnapshot = await getDocs(suggestionCollection);
+
+    const allFeedback = [];
+
+    suggestionSnapshot.forEach((doc) => {
+      const data = doc.data();
+
+      const formattedDate = data?.createdAt?.toDate
+        ? data.createdAt.toDate().toLocaleString("en-US", {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+          })
+        : "N/A";
+
+      allFeedback.push({
+        id: doc.id,
+        eventId: data.eventId || "N/A",
+        eventName: data.eventName || "Unknown Event",
+        eventTime: data.date?.toDate().toLocaleTimeString() || "Unknown Time",
+        userName: data.createdBy || "Unknown User",
+        suggestion: data.taskDescription || "No suggestion",
+        predefined: "N/A", // not applicable in this structure
+        date: formattedDate,
+        status: data.status || "Pending",
+      });
+    });
+
+    setFeedbackList(allFeedback);
+    setFilteredFeedback(allFeedback); // Optionally filter based on search
+  } catch (error) {
+    console.error("Error fetching suggestions:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
    useEffect(() => {
      fetchFeedback();
    }, []);
@@ -169,7 +142,7 @@ const FeedbackList = () => {
 
   const fetchUserName = async (phoneNumber) => {
     console.log("Fetch User from NTMember", phoneNumber);
-    const userRef = doc(db, 'NTMember', phoneNumber);
+    const userRef = doc(db, 'NTMembers', phoneNumber);
     const userDoc = await getDoc(userRef);
 
     console.log("Check Details", userDoc.data());
@@ -282,14 +255,16 @@ const FeedbackList = () => {
           ) : (
             <div className='container suggestionList'>
               {filteredFeedback.map((feedback, index) => (
-                <div key={index} className='suggestionBox'>
-                  <div className="suggestionDetails">
-                    {
-                      feedback.predefined === "Declined" ? <span className='meetingLable3'>{feedback.predefined} </span> : <span className='meetingLable'>{feedback.predefined}</span>
-                    }
-                    
-                    <span className='suggestionTime'>{feedback.date}</span>
-                  </div>
+            <div key={index} className='suggestionBox'>
+  <div className="suggestionDetails">
+    {
+      feedback.status === "Declined"
+        ? <span className='meetingLable3'>{feedback.status}</span>
+        : <span className='meetingLable'>{feedback.status}</span>
+    }
+    <span className='suggestionTime'>{feedback.date}</span>
+  </div>
+
                   <div className="boxHeading">
                     <span>{feedback.userName.charAt(0)}</span>
                     <div className="suggestions">
@@ -305,15 +280,7 @@ const FeedbackList = () => {
           )}
         </section>
       </main>
-    <div className="sticky-buttons-container">
-    <button className="sticky-btn" onClick={() => router.push('/Monthlymeetdetails')}>
-     Explore MonthlyMeet 
-    </button>
-    <button className="suggestion-btn" onClick={() => router.push('/')}>
- Go to Home Page
-    </button>
-  </div>
-
+   <HeaderNav/>
       {
         showpopup ? <section className="PopupMain">
           <div className="popupBox">
@@ -328,10 +295,10 @@ const FeedbackList = () => {
                   {singleFeedback.eventName}
 
                 </div>
-                <div>
+                {/* <div>
                   <h4>Event Date</h4>
                   <p>{formatDate(singleFeedback.eventTime)}</p>
-                </div>
+                </div> */}
                 <div>
                   <h4>User Name</h4>
                   {singleFeedback.userName}

@@ -36,9 +36,15 @@ body {
 
 }
 
+.logo {
+  width: 80px;
+  height: auto;
+  padding: 5px;
+}
+
 /* Welcome Text */
 .welcomeText {
-  font-size: 2rem;
+  font-size: 5px;
   color: #e9e9e9;
   font-family: "Forum", serif;
   font-weight: 400;
@@ -48,7 +54,7 @@ body {
 
 /* Event Name */
 .eventName {
-  font-size: 1.8rem;
+  font-size: 16px;
   color: #f16f06;
   text-align: center;
   font-family: "Forum", serif;
@@ -114,17 +120,13 @@ body {
   margin-top: 10px;
 }
 
+.suggestionDetails {
+  display: flex;
+  flex-direction: row;
+  gap: 100px;
+}
 
 
-/* .eventDetails p {
-  font-size: 1.2rem;
-  line-height: 1.5;
-  color: #a2cbda; 
-  margin: 8px 0;
-  font-family: "Mukta", serif;
-  font-weight: 100;
-   
-} */
 
 .eventDetails strong {
   color: #e0dbe3;
@@ -138,7 +140,7 @@ body {
 }
 
 .agenda p {
-  font-size: 1.2rem;
+  font-size: 17px;
   line-height: 1.5;
   color: #a2cbda;
   margin: 8px 0;
@@ -156,7 +158,7 @@ body {
 
 
 .registered {
-  font-size: 1.3rem;
+  font-size: 16px;
   color: #a2cbda;
   text-align: center;
   padding: 10px;
@@ -785,13 +787,134 @@ circle {
 
 /* New Dashboard Design */
 
+.Main {
+  width: 100%;
+  /* padding: 15px; */
+  /* background-color: #218838; */
+}
+
+.m-Header {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 1;
+  /* background: rgba(22, 39, 79, 0.5); */
+  background: url('/space.jpeg') no-repeat center center fixed;
+  -webkit-box-shadow: 0px 6px 15px 0px rgba(0, 0, 0, 0.41);
+  -moz-box-shadow: 0px 6px 15px 0px rgba(0, 0, 0, 0.41);
+  box-shadow: 0px 6px 15px 0px rgba(0, 0, 0, 0.41);
+}
+
+.m-Header .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.m-Header .container span {
+  color: #000000;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  color: #16274f;
+  text-align: center;
+  line-height: 40px;
+  background-color: #819eb0;
+  border-radius: 50%;
+}
+
+.m-Header .userName {
+  display: flex;
+  align-items: center;
+  column-gap: 10px;
+}
+
+.innerLogo {
+  width: 60px;
+  line-height: 0px;
+  padding: 5px 0;
+}
+
+.innerLogo img {
+  width: 100%;
+  padding: 0px;
+  line-height: 0px;
+}
+
+.container {
+  width: 100%;
+  padding: 0 15px;
+
+}
 
 
+.dashBoardMain {
+  padding-top: 90px;
 
-// .pageHeadings p {
-//   color: #fff;
+}
+
+.pageContainer {
+  color: #fff;
+  background: url('/space.jpeg') no-repeat center center fixed;
+  width: 100%;
+  min-height: 100vh;
+  background-size: cover;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 20px;
+  padding-bottom: 100px;
+}
+
+.dashBoardMain {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.pageContainer h1 {
+  font-size: 32px;
+  color: #e9e9e9;
+  font-family: "Forum", serif;
+  font-weight: 400;
+  text-align: center;
+  width: 100%;
+  text-align: left;
+  line-height: 36px;
+  padding: 0px 0;
+  /* margin-bottom: 10px; */
+}
+
+.dashBoardMain h1 {
+  font-size: 24px;
+}
+
+.pageHeading {
+  display: flex;
+  flex-direction: column;
+  row-gap: 5px;
+  padding: 20px 15px;
+}
+
+.pageHeading h1 {
+  font-size: 32px;
+  color: #e9e9e9;
+  font-family: "Forum", serif;
+  font-weight: 400;
+  text-align: center;
+  width: 100%;
+  text-align: left;
+  line-height: 36px;
+  /* padding: 20px 0; */
+
+}
+
+// .pageHeading p {
+//   color: #072c50;;
 //   line-height: 18px;
 // }
+
 /* .pageContainer p {
   font-size: 14px;
   color: #a2cbda;
@@ -808,12 +931,81 @@ circle {
   row-gap: 15px;
 }
 
+.meetingDetailsBox {
+  width: 100%;
+  background-color: #FFF;
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: 15px;
+}
+
+.meetingContent {
+  padding: 15px;
+  border-radius: 10px;
+  background-color: #f2f2f2;
+  display: flex;
+  flex-direction: column;
+  row-gap: 25px;
+  width: 100%;
+}
+
+.meetingContent>div {
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+}
+
+.meetingContent h4 {
+  font-size: 20px;
+  text-align: left;
+  color: #16274f;
+  font-family: "Forum", serif;
+}
+
+.meetingContent ul {
+  display: flex;
+  flex-direction: column;
+  row-gap: 15px;
+}
+
 .meetingDetailsheading {
   padding: 10px 0px;
   display: flex;
   flex-direction: column;
   row-gap: 0px;
   align-items: flex-start;
+}
+
+.meetingDetailsheading p {
+  color: #666;
+  font-style: italic;
+}
+
+.meetingContent li {
+  display: flex;
+  column-gap: 10px;
+  align-items: center;
+}
+
+.meetingContent li span {
+  color: #000000;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  color: #16274f;
+  text-align: center;
+  line-height: 40px;
+  background-color: #819eb0;
+  border-radius: 50%;
+}
+
+.meetingContent p {
+  color: #666;
+  line-height: 20px;
+  font-size: 16px;
 }
 
 .meetingBox h3 {
@@ -823,10 +1015,24 @@ circle {
   /* font-family: "Forum", serif; */
 }
 
+.meetingDetailsBox h3 {
+  font-size: 24px;
+  text-align: left;
+  color: #16274f;
+  font-family: "Forum", serif;
+}
+
 
 .meetingBox p {
   font-size: 14px;
   color: #444;
+}
+
+
+.eventList {
+  display: flex;
+  flex-direction: column;
+  row-gap: 20px;
 }
 
 .suggestionList {
@@ -835,6 +1041,19 @@ circle {
   row-gap: 20px;
 }
 
+.meetingLable {
+  padding: 3px 8px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #4a5a32;
+  border-radius: 20px;
+  background-color: #ddebc9;
+  font-family: "Mukta", serif;
+  line-height: 10px;
+  padding-top: 6px;
+  font-weight: 500;
+}
 
 .statusbtn {
   display: flex;
@@ -842,6 +1061,33 @@ circle {
   gap: 140px;
 }
 
+.meetingLable2 {
+  padding: 3px 8px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #1c6174;
+  border-radius: 20px;
+  background-color: #c2effc;
+  font-family: "Mukta", serif;
+  line-height: 10px;
+  padding-top: 6px;
+  font-weight: 500;
+}
+
+.meetingLable3 {
+  padding: 3px 8px;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #c04c41;
+  font-family: "Mukta", serif;
+  border-radius: 20px;
+  background-color: #feeded;
+  line-height: 10px;
+  padding-top: 6px;
+  font-weight: 500;
+}
 
 
 .meetingLink {
@@ -901,11 +1147,56 @@ circle {
 
 
 
+.momLink {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 15px;
+  background-color: #16274f;
+  border-radius: 30px;
+  font-weight: 400;
+  color: #FFF;
+  width: 52%;
+  font-size: 14px;
+  font-weight: 500;
+  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
+  /* margin: 20px;  */
+  /* max-width: 300px; */
+}
 
+.addcomment {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 15px;
+  background-color: #16274f;
+  border-radius: 30px;
+  font-weight: 400;
+  color: #FFF;
+  width: 100%;
+  font-size: 14px;
+  font-weight: 500;
+  /* box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); */
+  /* margin: 20px;  */
+  /* max-width: 300px; */
+}
 
-
-
-
+.momLink a {
+  color: #FFF;
+  font-weight: 400;
+  /* width: 100%; */
+  display: flex;
+  column-gap: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 22px;
+  text-transform: uppercase;
+}
 
 .meetingBoxFooter {
   display: flex;
@@ -913,7 +1204,23 @@ circle {
   justify-content: space-between;
 }
 
+.meetingBoxFooter ul {
+  display: flex;
+  column-gap: 10px;
+  width: 45%;
+}
 
+.meetingBoxFooter li {
+  color: #000000;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  color: #16274f;
+  text-align: center;
+  line-height: 40px;
+  background-color: #819eb0;
+  border-radius: 50%;
+}
 
 .loader2 {
   width: 48px;
@@ -953,8 +1260,28 @@ circle {
   gap: 10px;
 }
 
+.sticky-buttons-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0;
+  box-shadow: 0px -1px 10px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
 
-
+.icon-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  color: #16274f;
+}
 
 .red-dot {
   width: 6px;
@@ -971,19 +1298,80 @@ circle {
   object-fit: cover;
 }
 
+.viewDetails a {
+  text-decoration: none;
+  color: #d45e00;
+}
 
+.suggestionBox {
+  width: 100%;
+  background-color: #FFF;
+  border-radius: 15px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  row-gap: 15px;
+  color: #444;
+  position: relative;
+  padding-bottom: 25px;
+  -webkit-box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.3);
+  -moz-box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.3);
+  box-shadow: 0px 0px 15px 5px rgba(0, 0, 0, 0.3);
+}
+
+.suggestionBox .boxHeading {
+  display: flex;
+  column-gap: 10px;
+  align-items: flex-start;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.suggestionBox h4 {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.suggestionBox p {
+  font-size: 16px;
+  color: #444;
+  line-height: 20px;
+}
+
+.suggestionBox .boxHeading span {
+  color: #000000;
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+  color: #16274f;
+  text-align: center;
+  line-height: 40px;
+  background-color: #a2cad9;
+  border-radius: 50%;
+}
+
+.suggestionBox .suggestionDetails {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.suggestionTime {
+  font-size: 12px;
+  color: #bbb;
+}
+
+.suggestionBox .boxHeading .suggestions {
+  width: calc(100% - 50px);
+}
 
 .filterTab {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: white;
-  padding: 1rem;
-  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  transition: transform 0.4s ease, opacity 0.4s ease;
-    &.stickyFilter {
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+
+  &.stickyFilter {
     position: fixed;
     width: 100%;
     left: 0px;
@@ -1009,28 +1397,9 @@ circle {
   }
 }
 
-.slide-up {
-  transform: translateY(0%);
-  opacity: 1;
-  animation: slideUp 0.4s ease forwards;
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0%);
-    opacity: 1;
-  }
-}
-
-
-
 .filterTab h4 {
   font-size: 20px;
-  color: #111827;;
+  color: #a2cbda;
   margin-bottom: 5px;
   font-family: "Forum", serif;
 }
@@ -1079,7 +1448,40 @@ circle {
   /* Firefox */
 }
 
+.PopupMain {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 6;
+  display: flex;
+  padding: 15px;
+  align-items: center;
+}
 
+.popupBox {
+  width: 100%;
+  padding: 20px;
+  background-color: #FFF;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  row-gap: 10px;
+  position: relative;
+}
+
+.popupBox h2 {
+  font-family: "Forum", serif;
+  color: #16274f;
+  font-size: 24px;
+}
+
+.popupBox h4 {
+  font-family: "Forum", serif;
+  color: #16274f;
+}
 
 .viewPlus {
   padding: 8px 15px;
@@ -1353,7 +1755,7 @@ mark {
 
 /* Add this in a CSS file, e.g., AllEvents.css, and import it */
 
-.sectionHeadings {
+.sectionHeading {
   display: flex;
   justify-content: space-between;
   padding: 10px 15px;
@@ -1364,14 +1766,7 @@ mark {
     font-size: 20px;
   }
 }
-.sectionHeading {
 
-
-  h2 {
-    color: #a2cbda;
-    font-size: 20px;
-  }
-}
 .event-card {
   background: #e8d3ff; /* soft violet */
   padding: 16px;
@@ -1392,14 +1787,41 @@ mark {
   font-size: 20px;
   font-weight: 600;
   margin: 4px 0;
+  font-family: 'Forum';
 }
 
-.event-owner {
-  font-size: 15px;
-  color: #666;
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.with-dot {
+  position: relative;
+  padding-left: 20px; /* space for the dot */
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.with-dot::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 7px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+/* Specific colors */
+.dot-green::before {
+  background-color: #f16f06;
+}
+
+.dot-blue::before {
+  background-color: #072c50;
+}
+
+.dot-red::before {
+  background-color: #f44336;
+}
+
+.dot-yellow::before {
+  background-color: #ffc107;
 }
 
 .avatar {
@@ -1415,19 +1837,27 @@ mark {
   margin: 16px 0;
 }
 
-
+.due-date {
+      font-size: 14px;
+    color: #fff;
+    background: black;
+    border-radius: 20px;
+    padding: 8px;
+}
 
 .due-date .icon {
   margin-right: 4px;
 }
 
 .status-badge {
-  background: #f16f06;
-  color: white;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 500;
+      background: #f16f06;
+    color: white;
+    padding: 8px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 400;
+    width: 35%;
+    text-align: center;
 }
 
 .priority-tag {
@@ -1446,6 +1876,12 @@ mark {
 
 .suggestionMains{
   padding-top: 70px;
+  width: 100%;
+  .container{
+    display: flex;
+    flex-direction: column;
+    row-gap: 15px;
+  }
   .DetailsCard{
     width: 100%;
     background-color: #a2cad9;
@@ -1454,3 +1890,205 @@ mark {
   }
 }
 
+.assignbtn{
+      position: absolute;
+    bottom: 55px;
+    right: 20px;
+        background: #f16f06;
+    color: white;
+    padding: 8px;
+    border-radius: 20px;
+    font-size: 15px;
+    font-weight: 400;
+    width: 35%;
+    text-align: center;
+}
+.task-card {
+  // box-shadow: 0px 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.task-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.task-icon {
+  background-color: #2c3e50;
+  color: white;
+  padding: 12px;
+  border-radius: 10px;
+  margin-right: 16px;
+  font-size: 20px;
+}
+
+.task-info {
+  flex-grow: 1;
+}
+
+.task-heading {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin: 0;
+}
+
+.task-date {
+  font-size: 14px;
+  color: #aaa;
+}
+
+.task-options .dots {
+  font-size: 18px;
+  color: #ccc;
+}
+
+.task-details {
+  margin-top: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.complete-btn {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.suggestionBox {
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.suggestionBox.expanded {
+  background-color: #f8faff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+.comment-section {
+    
+
+  h3 {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: black;
+  }
+
+  .comment {
+       display: flex
+;
+    align-items: flex-start;
+    margin-top: -40px;
+
+    .avatar {
+      width: 40px;
+    height: 40px;
+    font-size: 14px;
+    color: #16274f;
+    text-align: center;
+    line-height: 40px;
+    background-color: #819eb0;
+    border-radius: 50%;
+     margin-right: 20px;
+    }
+
+    .comment-content {
+      flex: 1;
+
+      .comment-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+
+        .name {
+          font-weight: 500;
+          color: #333;
+        }
+
+        .time {
+          font-size: 14px;
+          color: #999;
+        }
+      }
+
+      .message-box {
+        background-color: #f1f1f1;
+        border-radius: 8px;
+        padding: 10px;
+        color: #444;
+      }
+    }
+  }
+
+  .no-comments {
+    color: #888;
+  }
+}
+.comments-section{
+      display: flex
+;
+    flex-direction: column;
+    gap: 53px;
+    .h3{
+      color: #101218;
+    }
+}
+
+.task-list{
+      color: black;
+    // background-color: antiquewhite;
+    // padding: 15px;
+    border-radius: 15px;
+    h3{
+      font-family: 'Forum';
+      color: #16274f;
+      font-size: 24px;
+      font-weight: 500;
+
+    }
+}
+
+.meetingBoxFooters {
+  display: flex;
+  gap: 50px;
+  margin-top: 10px;
+}
+
+.complete-btn {
+  background-color: #fe6f06;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.complete-btn:hover {
+  background-color: #d36414;
+}
+
+.comment-btn {
+    background-color: #072c50;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    width: 40%;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: 0.3s ease;
+}
+
+.comment-btn:hover {
+  background-color: #0056b3;
+}

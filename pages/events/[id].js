@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { db } from '../../firebaseConfig';
-import { doc, getDoc, collection, getDocs, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, collection, getDocs, setDoc, updateDoc, arrayUnion ,addDoc,serverTimestamp} from 'firebase/firestore';
 import axios from 'axios';
 // import "../../src/app/styles/main.scss";
 import './event.scss'; // Ensure your CSS file is correctly linked
+import '../../src/app/styles/user.scss';
 import { IoMdClose } from "react-icons/io";
 import Modal from 'react-modal';
 import { createMarkup } from '../../component/util';
+import HeaderNav from '../../component/HeaderNav';
+
+import Swal from 'sweetalert2';
 
 
 
@@ -20,7 +24,7 @@ const EventLoginPage = () => {
   const [eventDetails, setEventDetails] = useState(null);
   const [registerUsersList, setregisterUsersList] = useState(null);
   const [registeredUserCount, setRegisteredUserCount] = useState(0);
-  const [feedbackList, setFeedbackList] = useState([]);
+  const [suggestions, setFeedbackList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showModal, setShowModal] = useState(false); // State to show/hide modal
@@ -34,80 +38,50 @@ const EventLoginPage = () => {
   const [predefinedFeedback, setPredefinedFeedback] = useState("");
   const [customFeedback, setCustomFeedback] = useState("");
   const [currentUserId, setCurrentUserId] = useState('');
-  const [showpopup, setshowpopup] = useState(false);
+  const [showpopup, setshowpopup] = useState(false); 
   const [currentMeetingstatus, setcurrentMeetingstatus] = useState(null);
-
+const [suggestionText, setSuggestionText] = useState("");
+    const [cpPoints, setCPPoints] = useState(0);
 
 
   const fetchFeedback = async () => {
     setLoading(true);
     try {
-      const eventsCollection = collection(db, "NTmeet");
-      const eventsSnapshot = await getDocs(eventsCollection);
-      let allFeedback = [];
+      const suggestionCollection = collection(db, "suggestions");
+      const suggestionSnapshot = await getDocs(suggestionCollection);
+      const filteredFeedback = suggestionSnapshot.docs
+        .map((docSnap) => {
+          const data = docSnap.data();
+          return {
+            id: docSnap.id,
+            eventId: data.eventId || "Unknown",
+            eventName: data.eventName || "Unknown Event",
+            assignedTo: data.assignedTo || "Unassigned",
+            taskDescription: data.taskDescription || "No Description",
+            status: data.status || "Yet to be Discussed",
+            createdBy: data.createdBy || "Unknown",
+            date: data.date?.seconds
+              ? new Date(data.date.seconds * 1000).toLocaleDateString()
+              : "Yet To Be Assigned",
+          };
+        })
+        .filter((item) => item.eventId === id); // use id from params here
 
-      for (const eventDoc of eventsSnapshot.docs) {
-        const eventData = eventDoc.data();
-        const eventId = eventDoc.id;
-        const eventName = eventData.name || "Unknown Event";
-
-        const usersCollection = collection(db, `NTmeet/${eventId}/registeredUsers`);
-        const usersSnapshot = await getDocs(usersCollection);
-
-        for (const userDoc of usersSnapshot.docs) {
-          const userData = userDoc.data();
-          const phoneNumber = userData.phoneNumber || "";
-
-          let userName = "Unknown User";
-          if (phoneNumber) {
-            const membersCollection = collection(db, "NTMember");
-            const q = query(membersCollection, where("phoneNumber", "==", phoneNumber));
-            const membersSnapshot = await getDocs(q);
-            if (!membersSnapshot.empty) {
-              const memberData = membersSnapshot.docs[0].data();
-              userName = memberData.name || "Unknown User";
-
-            }
-          }
-
-          if (userData.feedback && userData.feedback.length > 0) {
-            userData.feedback.forEach((feedbackEntry, index) => {
-              const formattedDate = feedbackEntry.timestamp
-                ? new Date(feedbackEntry.timestamp).toLocaleString("en-US", {
-                  year: "numeric",
-                  month: "short",
-                  day: "2-digit",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })
-                : "N/A";
-
-              allFeedback.push({
-                id: `${userDoc.id}-${index}`,
-                eventId,
-                userDocId: userDoc.id,
-                eventName,
-                userName,
-                suggestion: feedbackEntry.custom || feedbackEntry.predefined || "N/A",
-                date: formattedDate,
-                status: feedbackEntry.status || "Yet to be Discussed",
-              });
-            });
-          }
-        }
-      }
-
-      console.log("all Feedback", allFeedback);
-
-
-      setFeedbackList(allFeedback);
+      setFeedbackList(filteredFeedback);
     } catch (error) {
-      console.error("Error fetching feedback:", error);
+      console.error("Error fetching suggestions:", error);
     } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    if (id) {
+      fetchFeedback();
+    }
+  }, [id]);
+
+ 
 
   useEffect(() => {
 
@@ -170,13 +144,6 @@ const EventLoginPage = () => {
     fetchFeedback()
     checkRegistrationStatus();
   }, [id]); // Runs when event ID changes
-
-  // Store phone number when entered
-  // const handlePhoneNumberSubmit = (number) => {
-  //   localStorage.setItem('ntnumber', number); // Store as 'ntnumber'
-  //   setPhoneNumber(number);
-  // };
-
 
 
   const handleAccept = async () => {
@@ -254,7 +221,7 @@ const EventLoginPage = () => {
 
   const fetchUserName = async (phoneNumber) => {
     console.log("Fetch User from NTMembers", phoneNumber);
-    const userRef = doc(db, 'NTMember', phoneNumber);
+    const userRef = doc(db, 'NTMembers', phoneNumber);
     const userDoc = await getDoc(userRef);
 
     console.log("Check Details", userDoc.data());
@@ -368,31 +335,59 @@ const EventLoginPage = () => {
     }
   };
 
-  // Submit feedback from the add feedback modal
-  const submitAddFeedback = async () => {
-    if (!predefinedFeedback && !customFeedback) {
-      alert("Please provide feedback before submitting.");
-      return;
+
+const submitAddFeedback = async () => {
+  if (!suggestionText.trim()) {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Empty Suggestion',
+      text: 'Please enter a suggestion before submitting.',
+    });
+    return;
+  }
+
+  try {
+    await addDoc(collection(db, "suggestions"), {
+      taskDescription: suggestionText,
+      eventId: id,
+      eventName: eventDetails?.name || "Unknown Event",
+      createdAt: serverTimestamp(),
+      createdBy: userName,
+      status: "Pending"
+    });
+
+    setSuggestionText(""); 
+    setshowpopup(false);   
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Submitted!',
+      text: 'Your suggestion has been added.',
+    });
+  } catch (error) {
+    console.error("❌ Error saving feedback:", error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Something went wrong. Please try again.',
+    });
+  }
+};
+const handleLogout = () => {
+  Swal.fire({
+    title: 'Are you sure?',
+    text: 'You will be logged out.',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Yes, Logout',
+    cancelButtonText: 'Cancel',
+  }).then((result) => {
+    if (result.isConfirmed) {
+      localStorage.removeItem('ntnumber');
+      window.location.reload(); // or navigate to login
     }
-
-    const timestamp = new Date().toLocaleString();
-    const feedbackEntry = {
-      predefined: null || 'Pending',
-      custom: customFeedback || 'No custom feedback',
-      timestamp: `Submitted on: ${timestamp}`
-    };
-
-    const docId = localStorage.getItem('ntnumber');
-
-    await updateFeedback(docId, feedbackEntry);
-
-    // Clear form fields
-    setPredefinedFeedback("");
-    setCustomFeedback("");
-
-    setshowpopup(false);
-  };
-
+  });
+};
   const closeAddFeedbackModal = () => {
     setAddFeedbackModalIsOpen(false);
     setPredefinedFeedback('');
@@ -483,7 +478,85 @@ const EventLoginPage = () => {
             <div className='innerLogo' onClick={() => router.push('/')}>
               <img src="/ujustlogo.png" alt="Logo" className="logo" />
             </div>
-            <div className='userName'> {userName || 'User'} <span>{getInitials(userName)}</span> </div>
+        <div className='headerRight'>
+              <button onClick={() => router.push(`/cp-details/${phoneNumber}`)} class="reward-btn">
+                <div class="IconContainer">
+                  <svg
+                    class="box-top box"
+                    viewBox="0 0 60 20"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M2 18L58 18"
+                      stroke="#6A8EF6"
+                      stroke-width="4"
+                      stroke-linecap="round"
+                    ></path>
+                    <circle
+                      cx="20.5"
+                      cy="9.5"
+                      r="7"
+                      fill="#101218"
+                      stroke="#6A8EF6"
+                      stroke-width="5"
+                    ></circle>
+                    <circle
+                      cx="38.5"
+                      cy="9.5"
+                      r="7"
+                      fill="#101218"
+                      stroke="#6A8EF6"
+                      stroke-width="5"
+                    ></circle>
+                  </svg>
+
+                  <svg
+                    class="box-body box"
+                    viewBox="0 0 58 44"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <mask id="path-1-inside-1_81_19" fill="white">
+                      <rect width="58" height="44" rx="3"></rect>
+                    </mask>
+                    <rect
+                      width="58"
+                      height="44"
+                      rx="3"
+                      fill="#101218"
+                      stroke="#6A8EF6"
+                      stroke-width="8"
+                      mask="url(#path-1-inside-1_81_19)"
+                    ></rect>
+                    <line
+                      x1="-3.61529e-09"
+                      y1="29"
+                      x2="58"
+                      y2="29"
+                      stroke="#6A8EF6"
+                      stroke-width="6"
+                    ></line>
+                    <path
+                      d="M45.0005 20L36 3"
+                      stroke="#6A8EF6"
+                      stroke-width="5"
+                      stroke-linecap="round"
+                    ></path>
+                    <path
+                      d="M21 3L13.0002 19.9992"
+                      stroke="#6A8EF6"
+                      stroke-width="5"
+                      stroke-linecap="round"
+                    ></path>
+                  </svg>
+
+                  <div class="coin"></div>
+                </div>
+                <div class="text">CP: {cpPoints}</div>  
+              </button>
+              <div className='userName'> <span>{getInitials(userName)}</span> </div>
+            </div>
           </section>
         </header>
 
@@ -495,11 +568,11 @@ const EventLoginPage = () => {
           <div className='container'>
           </div>
           <div className='container '>
-            <div className='meetingDetailsBox'>
+            <div className='meetingDetailsBox eventdetails'>
 
               <div className='meetingDetailsheading'>
                 <div className='statusbtn'>
-                { eventDetails?.momUrl ? <span className='meetingLable2'>Meeting Done</span> : <span className='meetingLable'>Current Meeting</span>}
+                { eventDetails?.momUrl ? <span className='meetingLable2'>Completed</span> : <span className='meetingLable'>Upcoming</span>}
                   
                   {currentMeetingstatus ? <span className='meetingLable3'>Declined</span> : null}
                 </div>
@@ -542,34 +615,41 @@ const EventLoginPage = () => {
 
 
                 </div>
-                {eventDetails?.momUrl ? (
-                  <div className='suggestionList'>
-                    <h4>Feedback and Suggestion</h4>
-                    {registerUsersList && registerUsersList.length > 0 ? (
-                      <ul>
-                        {registerUsersList.map((doc) =>
-                          doc.feedback && doc.feedback.length > 0 ? (
-                            <li key={doc.id}>
-                              <span>{getInitials(doc.name)}</span>
-                              {/* <strong>{doc.name}</strong>: */}
-                              <div className='listfeedback'>
-                                {doc.feedback.map((fb, index) => (
-                                  <p key={index}>
-                                    {fb.custom || fb.predefined} {/* Show custom if available, otherwise predefined */}
-                                    {index !== doc.feedback.length - 1 ? "" : ""}
-                                  </p>
-                                ))}
-                              </div>
-                            </li>
-                          ) : null
-                        )}
-                      </ul>
-                    ) : (
-                      <p>No feedback available</p>
-                    )}
-                  </div>) : null
-                }
-              </div>
+{eventDetails?.momUrl && (
+  <div className='suggestionList'>
+    <h4>Feedback and Suggestion</h4>
+    
+ {suggestions && suggestions.length > 0 ? (
+  <div className="container suggestionList">
+    {suggestions.map((suggestion) => (
+      <div key={suggestion.id} >
+        <div className="suggestionDetails">
+        
+          <span className="suggestionTime">{suggestion.date}</span>
+        </div>
+
+        <div className="boxHeading">
+          <div className="suggestions">
+            <p style={{ fontStyle:'normal' }}>{suggestion.taskDescription}</p>
+          </div>
+        </div>
+
+        <div className="extraDetails">
+         
+          <p style={{ color: '#2c3e50' }}><strong >Suggested By:</strong> {suggestion.createdBy}</p>
+        </div>
+      </div>
+    ))}
+  </div>
+) : (
+  <p>No suggestions available</p>
+)}
+
+
+  </div>
+)}
+</div>
+              
               <div className='meetingBoxFooter'>
 
                 {
@@ -589,23 +669,15 @@ const EventLoginPage = () => {
                 }
                 {/* Button to Open Modal */}
                 {
-                  eventDetails?.momUrl ? <button className="suggetionBtn" onClick={() => setshowpopup(true)}>
-                    Suggestion
+                  eventDetails?.momUrl ? <button className="addsuggestion" onClick={() => setshowpopup(true)}>
+                   Add Suggestion
                   </button> : null
                 }
 
 
               </div>
             </div>
-
-            <div className="sticky-buttons-container">
-    <button className="sticky-btn" onClick={() => router.push('/suggestion')}>
-     More Suggestions
-    </button>
-    <button className="suggestion-btn" onClick={() => router.push('/')}>
-Go to Home Page
-    </button>
-  </div>
+<HeaderNav/>
 
             {/* Agenda Modal */}
             {showModal && (
@@ -672,43 +744,28 @@ Go to Home Page
 
           {/* Feedback Form UI */}
           {showpopup && (
-            <section className="PopupMain">
-              <div className="popupBox">
-
-                {/* <button className="close-modal" onClick={closeAddFeedbackModal}><IoMdClose /></button> */}
-                <h2>Suggestions / Feedback</h2>
-                <div className="leave-container">
-                  {/* <div className="form-group">
-                  <select
-                    onChange={(e) => setPredefinedFeedback(e.target.value)}
-                    value={predefinedFeedback}
-                  >
-                    <option value="">Select Feedback</option>
-                    {predefinedFeedbacks.map((feedback, idx) => (
-                      <option key={idx} value={feedback}>{feedback}</option>
-                    ))}
-                  </select>
-                </div> */}
-                </div>
-                <div className="form-group">
-                  <textarea
-                    value={customFeedback}
-                    onChange={(e) => setCustomFeedback(e.target.value)}
-                    placeholder="Enter feedback"
-                  />
-                </div>
-                <div className="twobtn">
-                  <button className='submitBtn' onClick={submitAddFeedback} >
-                    Submit
-                  </button>
-                  {/* <button className='' onClick={closeAddFeedbackModal} >
-                  Cancel
-                </button> */}
-                </div>
-
-                <button className="closeBtn" onClick={() => setshowpopup(false)}><IoMdClose /></button>
-              </div>
-            </section>)
+          <div className="modal-overlay">
+    <div className="modal-content">
+      <h3>Add Suggestion</h3>
+      <textarea
+        rows={4}
+        value={suggestionText}
+        placeholder="Write your comment..."
+      onChange={(e) => setSuggestionText(e.target.value)}
+      />
+       <ul className='actionBtns'>
+                    <li>
+                      <button onClick={submitAddFeedback} className='m-button'>Submit</button>
+                    </li>
+                    <li>
+                      <button onClick={() => setshowpopup(false)} className='m-button-2'>Cancel</button>
+                    </li>
+                  </ul>
+    
+    </div>
+  </div>
+            
+            )
           }
         </section>
       </main>

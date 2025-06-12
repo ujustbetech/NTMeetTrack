@@ -238,23 +238,58 @@ const ManageEvents = () => {
                 </button>
             </td>
           
-            <td>
-                {event.momUrl ? (
-                    <a href={event.momUrl} target="_blank" rel="noopener noreferrer">View MOM</a>
-                ) : (
-                    <>
-                        <input type="file" onChange={(e) => setSelectedFile(e.target.files[0])}/>
-                        <button 
-    className="m-button-7" 
-    onClick={() => handleFileUpload(event.id, event.name, event.time)} 
-    style={{ marginLeft: '10px', backgroundColor: '#f16f06', color: 'white' }}
->
-    Upload MOM
-</button>
-</>
-                )}
-            </td>
-          
+          <td>
+  {event.momUrl ? (
+    <>
+      <a href={event.momUrl} target="_blank" rel="noopener noreferrer">View MOM</a>
+      <br />
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={(e) => {
+          setSelectedFile(e.target.files[0]);
+          setEditingEventId(event.id); // optional: track which event is being edited
+        }}
+      />
+      {selectedFile  === event.id && (
+        <div style={{ marginTop: '5px' }}>
+          <p>Selected: {selectedFile.name}</p>
+          <button
+            className="m-button-7"
+            onClick={() => handleFileUpload(event.id, event.name, event.time)}
+            disabled={!selectedFile}
+            style={{ marginTop: '5px', backgroundColor: '#f16f06', color: 'white' }}
+          >
+            Upload New MOM
+          </button>
+        </div>
+      )}
+    </>
+  ) : (
+    <>
+      <input
+        type="file"
+        accept="application/pdf"
+        onChange={(e) => setSelectedFile(e.target.files[0])}
+      />
+      {selectedFile && (
+        <div style={{ marginTop: '5px' }}>
+          <p>Selected: {selectedFile.name}</p>
+        </div>
+      )}
+      <button
+        className="m-button-7"
+        onClick={() => handleFileUpload(event.id, event.name, event.time)}
+        disabled={!selectedFile}
+        style={{ marginLeft: '10px', backgroundColor: '#f16f06', color: 'white' }}
+      >
+        Upload MOM
+      </button>
+    </>
+  )}
+</td>
+
+   
                     <td style={{ padding: '10px', border: '1px solid #ddd' }}>
     <div className="twobtn">
         <button className="m-button-7" 

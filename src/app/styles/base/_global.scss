@@ -1,6 +1,9 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300;1,400;1,500;1,600&family=Work+Sans:wght@100;200;300;400;500;600;700;800&display=swap');
 
+@import url('https://fonts.googleapis.com/css2?family=Forum&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Mukta:wght@200;300;400;500;600;700;800&display=swap');
+
 .boxshadowdark{
     -webkit-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.1);
     -moz-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.1);
@@ -16,7 +19,7 @@
 body{
     background-color: $greybg;
     position: relative;
-    font-family: 'Work Sans', sans-serif;
+    font-family: 'Mukta', sans-serif;
 }
 .wrapper{
     width: 100%;
@@ -54,6 +57,7 @@ body{
     @extend .boxshadowdark;
     overflow-y: scroll;
     padding: 35px;
+        background-color: #fff;
 
     h2{
         font-size: 18px;
@@ -62,9 +66,14 @@ body{
     }
 
     table{
-        // border: 1px solid #201f1f;
-        border-collapse: collapse;
-        width: 100%;
+           background-color: white;
+    background-clip: border-box;
+    width: 100%;
+    border-radius: .4rem;
+    overflow-y: scroll;
+    padding: 35px;
+    min-width: 0;
+    word-wrap: break-word;
         th{
           font-weight: 700;
           color: #505D69;
@@ -128,6 +137,17 @@ body{
 
 .form-row{
     input[type="datetime-local"]{
+        width: 100%;
+        padding: 10px;
+        // padding-right: 40px;
+        line-height: 20px;
+        border:1px solid $bordercolor;
+        font-size: 16px;
+        // font-family: inherit;
+        border-radius: 5px;
+     
+      }
+        input[type="date"]{
         width: 100%;
         padding: 10px;
         // padding-right: 40px;
@@ -377,5 +397,26 @@ sup{
   
 font-size: 16px;
 color: red;
+}
+
+.predefined-dropdown {
+  padding: 6px 12px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f9f9f9;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+
+  &:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  }
 }
 

@@ -19,6 +19,7 @@ const ManageEvents = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [selectedFile, setSelectedFile] = useState({});
+const parseDate = (dateObj) => dateObj.toDate(); // Converts to JS Date
 
 
     const handleFileUpload = async (eventId, eventName, eventTime) => {
@@ -220,25 +221,29 @@ const ManageEvents = () => {
                             <th>Actions</th> 
                         </tr>
                     </thead>
-                    <tbody>
-    {events.map((event, index) => (
-        <tr key={event.id}>
-            <td>{index + 1}</td>
-            <td>{event.name}</td>
-            <td>{formatTime(event.time)}</td>
-            <td>
-                <a href={event.zoomLink} target="_blank" rel="noreferrer">Join Meeting</a>
-            </td>
-            <td>
-                <button 
-                    className="m-button-7" 
-                    onClick={() => handleCopyEventLink(event.id)} 
-                    style={{ marginLeft: '10px', backgroundColor: '#e2e2e2', color: 'black' }}>
-                   <FaRegCopy/> Copy 
-                </button>
-            </td>
-          
-          <td>
+       <tbody>
+  {events
+    .sort((a, b) => {
+      const parseDate = (dateObj) => dateObj.toDate(); // Firestore Timestamp to JS Date
+      return parseDate(b.time) - parseDate(a.time); // latest first
+    })
+    .map((event, index) => (
+      <tr key={event.id}>
+        <td>{index + 1}</td>
+        <td>{event.name}</td>
+        <td>{formatTime(event.time)}</td>
+        <td>
+          <a href={event.zoomLink} target="_blank" rel="noreferrer">Join Meeting</a>
+        </td>
+        <td>
+          <button 
+            className="m-button-7" 
+            onClick={() => handleCopyEventLink(event.id)} 
+            style={{ marginLeft: '10px', backgroundColor: '#e2e2e2', color: 'black' }}>
+            <FaRegCopy /> Copy
+          </button>
+        </td>
+        <td>
   {event.momUrl ? (
     <>
       <a href={event.momUrl} target="_blank" rel="noopener noreferrer">View MOM</a>

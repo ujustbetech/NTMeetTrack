@@ -25,6 +25,22 @@ const CreateEvent = () => {
     const updatedPoints = agendaPoints.filter((_, i) => i !== index);
     setAgendaPoints(updatedPoints); // Remove the selected agenda point
   };
+const formatEventDate = (rawDate) => {
+  const dateObj = new Date(rawDate); // assumes rawDate is a valid date string or Timestamp
+
+  const day = dateObj.getDate();
+  const month = dateObj.toLocaleString('default', { month: 'long' }); // e.g., July
+  const year = dateObj.getFullYear();
+
+  let hours = dateObj.getHours();
+  const minutes = dateObj.getMinutes().toString().padStart(2, '0');
+  const ampm = hours >= 12 ? 'pm' : 'am';
+
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0 becomes 12
+
+  return `${day} ${month} ${year} at ${hours}.${minutes} ${ampm}`;
+};
 
   const handleAgendaChange = (index, value) => {
     const updatedPoints = [...agendaPoints];
@@ -46,12 +62,13 @@ const CreateEvent = () => {
         components: [
           {
             type: 'body',
-            parameters: [
-              { type: 'text', text: userName },
-              { type: 'text', text: eventName },
-              { type: 'text', text: eventDate },
-              { type: 'text', text: eventLink }
-            ]
+          parameters: [
+  { type: 'text', text: userName },
+  { type: 'text', text: eventName },
+  { type: 'text', text: formatEventDate(eventDate) },
+  { type: 'text', text: eventLink }
+]
+
           }
         ]
       }
@@ -75,77 +92,75 @@ const CreateEvent = () => {
   };
   
 
-  const handleCreateEvent = async (e) => {
-    e.preventDefault();
-  
-    setLoading(true);
-    setError('');
-    setSuccess('');
-  
-    if (!eventName || !eventTime || !zoomLink || !recordingLink || !headerMessage || !footerMessage || agendaPoints.some(point => point === '')) {
-      setError('Please fill in all fields');
-      setLoading(false);
-      return;
-    }
-  
-    try {
-      const monthlyMeetRef = collection(db, 'NTmeet');
-      const uniqueId = doc(monthlyMeetRef).id;
-      const eventDocRef = doc(monthlyMeetRef, uniqueId);
-  
-      const eventData = {
-        name: eventName,
-        time: Timestamp.fromDate(new Date(eventTime)),
-        agenda: agendaPoints,
-        zoomLink: zoomLink,
-        recordingLink: recordingLink,
-        headerMessage:headerMessage,
-        footerMessage:footerMessage,
-        uniqueId: uniqueId,
-      };
-  
-      // Save event in NTmeet
-      await setDoc(eventDocRef, eventData);
-  // Fetch all NTmember users
-const membersCollectionRef = collection(db, 'NTMembers');
-const membersSnapshot = await getDocs(membersCollectionRef);
+const handleCreateEvent = async (e) => {
+  e.preventDefault();
 
-const promises = [];
+  setLoading(true);
+  setError('');
+  setSuccess('');
 
-membersSnapshot.forEach((doc) => {
-  const userData = doc.data();
-  const phoneNumber = userData.phoneNumber; // ✅ Fix: Use phoneNumber
-
-  if (phoneNumber) {
-    const eventLink = `https://nt-meet-track.vercel.app/events/${uniqueId}`;
-    promises.push(sendWhatsAppMessage(userData.name, eventName, eventTime, eventLink, phoneNumber));
-    
+  // 🔧 Removed recordingLink from required check
+  if (!eventName || !eventTime || !zoomLink || !headerMessage || !footerMessage || agendaPoints.some(point => point === '')) {
+    setError('Please fill in all fields');
+    setLoading(false);
+    return;
   }
-});
 
-// Run all WhatsApp API calls
-await Promise.all(promises);
+  try {
+    const monthlyMeetRef = collection(db, 'NTmeet');
+    const uniqueId = doc(monthlyMeetRef).id;
+    const eventDocRef = doc(monthlyMeetRef, uniqueId);
 
-  
-   
-      setSuccess('Event created successfully and WhatsApp messages sent!');
-      setEventName('');
-      setEventTime('');
-      setAgendaPoints(['']);
-      setZoomLink('');
-      setRecordingLink('');
-      setHeaderMessage('');
-      setFooterMessage('');
-      setError('');
-      setLoading(false);
-  
-   
-    } catch (error) {
-      console.error(error);
-      setError('Error creating event. Please try again.');
-      setLoading(false);
-    }
-  };
+    const eventData = {
+      name: eventName,
+      time: Timestamp.fromDate(new Date(eventTime)),
+      agenda: agendaPoints,
+      zoomLink: zoomLink,
+      recordingLink: recordingLink || '', // ✅ Safe default if empty
+      headerMessage: headerMessage,
+      footerMessage: footerMessage,
+      uniqueId: uniqueId,
+    };
+
+    // Save event in NTmeet
+    await setDoc(eventDocRef, eventData);
+
+    // Fetch all NTmember users
+    const membersCollectionRef = collection(db, 'NTMembers');
+    const membersSnapshot = await getDocs(membersCollectionRef);
+
+    const promises = [];
+
+    membersSnapshot.forEach((doc) => {
+      const userData = doc.data();
+      const phoneNumber = userData.phoneNumber;
+
+      if (phoneNumber) {
+        const eventLink = `https://nt-meet-track.vercel.app/events/${uniqueId}`;
+        promises.push(sendWhatsAppMessage(userData.name, eventName, eventTime, eventLink, phoneNumber));
+      }
+    });
+
+    await Promise.all(promises);
+
+    setSuccess('Event created successfully and WhatsApp messages sent!');
+    setEventName('');
+    setEventTime('');
+    setAgendaPoints(['']);
+    setZoomLink('');
+    setRecordingLink('');
+    setHeaderMessage('');
+    setFooterMessage('');
+    setError('');
+    setLoading(false);
+
+  } catch (error) {
+    console.error(error);
+    setError('Error creating event. Please try again.');
+    setLoading(false);
+  }
+};
+
   
   return (
    <>
@@ -223,13 +238,13 @@ await Promise.all(promises);
           <li className='form-row'>
             <h4>Recording link</h4>
             <div className='multipleitem'>
-              <input
-                type="text"
-                placeholder="Recording Link"
-                value={recordingLink}
-                onChange={(e) => setRecordingLink(e.target.value)}
-                required
-              />
+            <input
+  type="text"
+  placeholder="Recording Link"
+  value={recordingLink}
+  onChange={(e) => setRecordingLink(e.target.value)}
+/>
+
             </div>
           </li>
           <li className='form-row'>

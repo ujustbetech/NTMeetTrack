@@ -82,26 +82,19 @@ export default function EventDetailsPage() {
   const [uploading, setUploading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [newComment, setNewComment] = useState('');
- const handleCommentSubmit = async () => {
+const handleCommentSubmit = async () => {
   if (!newComment.trim()) return;
 
-  if (!activeParentId || !activeSubtaskId) {
-    console.error('Missing parentId or subtaskId');
-    return;
-  }
-
   try {
-    const subtaskRef = doc(db, 'suggestions', activeParentId, 'subtasks', activeSubtaskId);
-
-    await updateDoc(subtaskRef, {
-      comments: arrayUnion({
-        text: newComment,
-        by: userName,
-        at: serverTimestamp(),
-      }),
+    const commentRef = collection(db, 'suggestions', id, 'comments'); // 👈 id = suggestionId
+    await addDoc(commentRef, {
+      text: newComment,
+      commenterName: userName,
+      createdAt: serverTimestamp(),
     });
 
     setNewComment('');
+    setIsAssignModalOpen(false);
   } catch (error) {
     console.error('Error adding comment:', error);
   }
